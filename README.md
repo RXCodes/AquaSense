@@ -1,4 +1,4 @@
-![AquaSense Project Banner](https://github.com/c2440a5a-8293-458f-9945-21cc26adf293)
+![AquaSense Project Banner](https://github.com/RXCodes/AquaSense/raw/refs/heads/main/repository_banner.jpeg)
 # Description
 Water treatment and conditioning is an essential part of caring for any aquatic or semi-aquatic pets. However, maintaining a high-quality and uncontaminated environment to keep them healthy over long periods of time is difficult, providing a need for active water quality monitoring.
 While market solutions to this problem exist, they are often either not Internet-capable or provide only rudimentary data monitoring that can be unhelpful to inexperienced fish owners.
