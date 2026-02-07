@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AquaSense - Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(225deg, #285EFF 0%, #00FFAE 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      padding: 0 1rem;
+      background: linear-gradient(90deg, #1E1E1E 0%, rgba(16, 16, 16, 0.50) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      z-index: 100;
+    }
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .top-bar-left svg {
+      flex-shrink: 0;
+    }
+    .top-bar-brand {
+      color: #285EFF;
+      font-size: clamp(1.125rem, 3vw, 1.5rem);
+      font-weight: 900;
+    }
+    .top-bar-nav {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.75rem, 2vw, 1.5rem);
+      flex-wrap: wrap;
+    }
+    .top-bar-nav a {
+      color: white;
+      font-size: clamp(0.75rem, 2vw, 0.875rem);
+      font-weight: 300;
+      text-decoration: none;
+    }
+    .top-bar-nav a:hover {
+      opacity: 0.8;
+    }
+    .scrollable-content {
+      flex: 1;
+      margin-top: 50px;
+      margin-bottom: 56px;
+      overflow-y: auto;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+    .page-title {
+      text-align: center;
+      color: white;
+      font-size: clamp(1.75rem, 5vw, 2.625rem);
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+    .settings-card {
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto 1.25rem;
+      background: rgba(30, 30, 30, 0.90);
+      border-radius: 20px;
+      padding: clamp(1rem, 3vw, 1.5rem);
+    }
+    .card-heading {
+      color: #B4B4B4;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .card-description {
+      color: #8D8D8D;
+      font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
+      font-weight: 300;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .setting-label {
+      color: #8D8D8D;
+      font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
+      flex: 1;
+      min-width: 150px;
+    }
+    .setting-label strong {
+      font-weight: 700;
+    }
+    .setting-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .setting-input {
+      width: 100px;
+      padding: 0.35rem 0.5rem;
+      background: #161616;
+      border: none;
+      border-radius: 10px;
+      color: #A7A7A7;
+      font-size: 0.875rem;
+      font-weight: 700;
+      font-family: inherit;
+      text-align: center;
+    }
+    .setting-input:focus {
+      outline: 2px solid #527DFF;
+    }
+    .setting-unit {
+      color: #8D8D8D;
+      font-size: 0.75rem;
+      font-weight: 700;
+      min-width: 50px;
+    }
+    .danger-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .danger-text {
+      flex: 1;
+      min-width: 150px;
+      color: #8D8D8D;
+      font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+    .danger-text strong {
+      font-weight: 700;
+    }
+    .danger-btn {
+      flex-shrink: 0;
+      padding: 0.65rem 1.25rem;
+      background: linear-gradient(0deg, #952C2C 9%, #FFA46C 100%);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: clamp(0.875rem, 2vw, 1.125rem);
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    .danger-btn:hover {
+      transform: translateY(-1px);
+    }
+    .danger-btn:active {
+      transform: translateY(0);
+    }
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 56px;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(90deg, #1E1E1E 0%, rgba(30, 30, 30, 0.80) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      z-index: 100;
+    }
+    .bottom-bar-left {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .bar-btn {
+      padding: 0.6rem 1.25rem;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: clamp(0.875rem, 2vw, 1.125rem);
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    .bar-btn:hover {
+      transform: translateY(-1px);
+    }
+    .bar-btn:active {
+      transform: translateY(0);
+    }
+    .btn-back {
+      background: linear-gradient(359deg, #5680FF 0%, #00FFAE 100%);
+    }
+    .btn-save {
+      background: linear-gradient(180deg, #B3FFA2 0%, #07CD92 100%);
+    }
+    .btn-restore {
+      background: linear-gradient(0deg, #673DBB 9%, #CB6CFF 100%);
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <img id="Icon" width="20" height="32" src="images/icon.png"/>
+      <span class="top-bar-brand">AquaSense</span>
+    </div>
+    <nav class="top-bar-nav">
+      <a href="/dashboard" data-testid="link-dashboard">Dashboard</a>
+      <a href="/settings" data-testid="link-settings">Settings</a>
+      <a href="/logout" data-testid="link-logout">Log Out</a>
+    </nav>
+  </header>
+
+  <div class="scrollable-content">
+    <h1 class="page-title">Settings</h1>
+
+    <section class="settings-card">
+      <h2 class="card-heading">Recording Intervals</h2>
+      <p class="card-description">Adjust how frequently data points are recorded. Higher frequency will lead to higher data usage.</p>
+
+      <div class="setting-row">
+        <span class="setting-label"><strong>Camera</strong>: Take snapshots of the water</span>
+        <div class="setting-input-group">
+          <input type="number" class="setting-input" value="10" data-testid="input-camera-interval" />
+          <span class="setting-unit">minutes</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><strong>Turbidity Sensor</strong>: Detect contaminants in water</span>
+        <div class="setting-input-group">
+          <input type="number" class="setting-input" value="5" data-testid="input-turbidity-interval" />
+          <span class="setting-unit">minutes</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><strong>pH Sensor</strong>: Measure acidity of water</span>
+        <div class="setting-input-group">
+          <input type="number" class="setting-input" value="5" data-testid="input-ph-interval" />
+          <span class="setting-unit">minutes</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><strong>TDS Sensor</strong>: Measure concentration of solids</span>
+        <div class="setting-input-group">
+          <input type="number" class="setting-input" value="5" data-testid="input-tds-interval" />
+          <span class="setting-unit">minutes</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <h2 class="card-heading">Contingency Planning</h2>
+      <p class="card-description">In case of failure to transmit data to the server, the device keeps a local copy of the records. You can adjust how often the device will attempt to retry connecting to the server to send new data.</p>
+
+      <div class="setting-row">
+        <span class="setting-label"><strong>Retry Interval</strong>: Time to wait until retrying to sync</span>
+        <div class="setting-input-group">
+          <input type="number" class="setting-input" value="5" data-testid="input-retry-interval" />
+          <span class="setting-unit">minutes</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><strong>Local Storage Limit</strong>: Maximum capacity of data to store offline on the device - when exceeding the limit, the oldest data will be deleted to make space for new data</span>
+        <div class="setting-input-group">
+          <input type="number" class="setting-input" value="100" data-testid="input-storage-limit" />
+          <span class="setting-unit">MB</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><strong>Offline Image Limit</strong>: Maximum amount of images to store offline on the device - when exceeding the limit, the oldest image is deleted before a new one is saved</span>
+        <div class="setting-input-group">
+          <input type="number" class="setting-input" value="20" data-testid="input-image-limit" />
+          <span class="setting-unit">images</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <h2 class="card-heading">Manage Data</h2>
+
+      <div class="danger-row">
+        <p class="danger-text">The device keeps a local storage for data that has failed to be delivered to the server. This action will <strong>permanently</strong> clear the local storage of the device.</p>
+        <button class="danger-btn" data-testid="button-clear-local-storage">Clear Local Storage</button>
+      </div>
+      <div class="danger-row">
+        <p class="danger-text">This action will <strong>permanently</strong> wipe all data recorded on the server. This will remove all data points, images and saved AI summaries.</p>
+        <button class="danger-btn" data-testid="button-clear-site-analytics">Clear Site Analytics</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="bottom-bar">
+    <div class="bottom-bar-left">
+      <button class="bar-btn btn-back" data-testid="button-back">Back</button>
+      <button class="bar-btn btn-save" data-testid="button-save">Save</button>
+    </div>
+    <button class="bar-btn btn-restore" data-testid="button-restore-defaults">Restore Defaults</button>
+  </footer>
+</body>
+</html>

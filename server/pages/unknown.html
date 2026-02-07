@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AquaSense - Unknown Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(225deg, #285EFF 0%, #00FFAE 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .top-bar {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(90deg, #1E1E1E 0%, rgba(16.61, 16.61, 16.61, 0.50) 100%);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .top-bar svg {
+      flex-shrink: 0;
+    }
+    .top-bar-title {
+      color: #285EFF;
+      font-size: clamp(1.25rem, 3vw, 1.5rem);
+      font-weight: 900;
+    }
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      width: 100%;
+    }
+    .card {
+      width: 100%;
+      max-width: 625px;
+      background: linear-gradient(180deg, #1E1E1E 0%, rgba(30, 30, 30, 0.60) 100%);
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.20) inset;
+      border-radius: 20px;
+      padding: clamp(1.5rem, 5vw, 2.5rem);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .card-title {
+      text-align: center;
+      color: #527DFF;
+      font-size: clamp(1.75rem, 5vw, 2.625rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .card-subtitle {
+      text-align: center;
+      color: #A7A7A7;
+      font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+    .x-icon {
+      margin: 1.5rem 0;
+    }
+    .x-icon svg {
+      width: clamp(80px, 15vw, 138px);
+      height: auto;
+    }
+    .submit-btn {
+      width: 100%;
+      max-width: 376px;
+      margin-top: 1.5rem;
+      display: block;
+      padding: 1rem;
+      background: linear-gradient(90deg, #5680FF 0%, #00FFAE 100%);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(86, 128, 255, 0.4);
+    }
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <img id="Icon" width="20" height="32" src="images/icon.png"/>
+    <span class="top-bar-title">AquaSense</span>
+  </header>
+
+  <main class="main-content">
+    <div class="card">
+      <h1 class="card-title">Unknown Page</h1>
+      <p class="card-subtitle">The page you are looking for does not exist.</p>
+
+      <div class="x-icon">
+        <svg width="138" height="138" viewBox="0 0 138 138" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.06632e-05 34.5L34.5 5.81627e-07L138 103.5L103.5 138L1.06632e-05 34.5Z" fill="url(#paint0_linear_16_138)"/>
+        <path d="M103.5 0L138 34.5L34.5 138L0 103.5L103.5 0Z" fill="url(#paint1_linear_16_138)"/>
+        <defs>
+        <linearGradient id="paint0_linear_16_138" x1="21.9557" y1="-2.92721e-06" x2="130.514" y2="124.009" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#00FFAE"/>
+        <stop offset="1" stop-color="#285EFF"/>
+        </linearGradient>
+        <linearGradient id="paint1_linear_16_138" x1="21.9557" y1="-2.92721e-06" x2="130.514" y2="124.009" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#00FFAE"/>
+        <stop offset="1" stop-color="#285EFF"/>
+        </linearGradient>
+        </defs>
+        </svg>
+      </div>
+
+      <a href="/dashboard" class="submit-btn" data-testid="button-return-signin">Go to Dashboard</a>
+    </div>
+  </main>
+</body>
+</html>

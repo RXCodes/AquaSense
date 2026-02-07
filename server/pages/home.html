@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AquaSense - Water Quality Assurance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(224deg, #003EF9 0%, #00FFAE 93%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .top-bar {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(180deg, #1E1E1E 0%, rgba(30, 30, 30, 0.60) 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo img {
+      width: 43px;
+      height: 69px;
+    }
+    .logo-text {
+      color: #285EFF;
+      font-size: clamp(1.5rem, 4vw, 2.25rem);
+      font-weight: 900;
+    }
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      width: 100%;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 625px;
+      background: linear-gradient(180deg, #1E1E1E 0%, rgba(30, 30, 30, 0.60) 100%);
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.20) inset;
+      border-radius: 20px;
+      padding: clamp(1.5rem, 5vw, 2.5rem);
+    }
+    .login-title {
+      text-align: center;
+      color: #527DFF;
+      font-size: clamp(1.75rem, 5vw, 2.625rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .login-subtitle {
+      text-align: center;
+      color: #A7A7A7;
+      font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-label {
+      display: block;
+      color: white;
+      font-size: clamp(0.875rem, 2.5vw, 1.25rem);
+      margin-bottom: 0.5rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: #111111;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    .form-input::placeholder {
+      color: #A7A7A7;
+    }
+    .form-input:focus {
+      outline: 2px solid #527DFF;
+    }
+    .submit-btn {
+      width: 100%;
+      max-width: 376px;
+      margin: 1.5rem auto 0;
+      display: block;
+      padding: 1rem;
+      background: linear-gradient(90deg, #5680FF 0%, #00FFAE 100%);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(86, 128, 255, 0.4);
+    }
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="logo">
+      <img data-layer="Icon" class="Icon" src="images/icon.png" alt="AquaSense Icon"/>
+      <span class="logo-text">AquaSense</span>
+    </div>
+  </header>
+  
+  <main class="main-content">
+    <div class="login-card">
+      <h1 class="login-title">Sign In</h1>
+      <p class="login-subtitle">Sign in to access analytics, manage settings and get recommendations for water quality assurance powered by AI.</p>
+      
+      <div id="form-login">
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            class="form-input" 
+            placeholder="Enter Username"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            class="form-input" 
+            placeholder="Enter Password"
+          >
+        </div>
+        
+        <button id="submit-btn" onclick="sign_in_clicked()" class="submit-btn">Sign In</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
+
+<script src="./client_scripts/sign_in.js"></script>
+<script>
+
+  var signing_in = false;
+  
+  // when the sign in button is clicked, get the username and password
+  async function sign_in_clicked() {
+    if (signing_in) {
+      return;
+    }
+    var username = document.getElementById('username').value;
+    var password = document.getElementById('password').value;
+    username.trim();
+    password.trim();
+    if (username.length == 0 || password.length == 0) {
+      return;
+    }
+
+    // then hit an API call to the server
+    signing_in = true;
+    let submit_button = document.getElementById('submit-btn');
+    submit_button.innerHTML = "Signing In...";
+    submit_button.style.opacity = 0.75;
+    var result = await attempt_sign_in(username, password);
+    let data = await result.json();
+    
+    let username_field = document.getElementById('username');
+    let password_field = document.getElementById('password');
+
+    if (!data.success) {
+      // outline red on the username and password fields
+      username_field.style.outline = "2px solid red";
+      password_field.style.outline = "2px solid red";
+      submit_button.innerHTML = "Sign In";
+      submit_button.style.opacity = 1.0;
+      signing_in = false;
+      return;
+    }
+
+    // outline green on the username and password fields
+    username_field.style.outline = "2px solid #00BB78";
+    password_field.style.outline = "2px solid #00BB78";
+
+    // redirect to the dashboard
+    window.location.href = "/dashboard";
+  }
+</script>
