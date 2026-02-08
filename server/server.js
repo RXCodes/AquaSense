@@ -20,7 +20,7 @@ app.get("/", (_, res) => {
 
 // serve the dashboard page
 app.get("/dashboard/", (req, res) => {
-  let authorized = Authorization.request_has_authorization(req);
+  let authorized = Authorization.request_has_user_authorization(req);
   if (!authorized) {
     res.redirect("/unauthorized");
     return;
@@ -30,7 +30,7 @@ app.get("/dashboard/", (req, res) => {
 
 // serve the settings page
 app.get("/settings/", (req, res) => {
-  let authorized = Authorization.request_has_authorization(req);
+  let authorized = Authorization.request_has_user_authorization(req);
   if (!authorized) {
     res.redirect("/unauthorized");
     return;
@@ -49,7 +49,6 @@ app.get("/unauthorized/", (_, res) => {
 });
 
 // serve images and scripts
-app.use("/remote_scripts", express.static(path.join(__dirname, 'client_scripts')));
 app.use("/client_scripts", express.static(path.join(__dirname, 'client_scripts')));
 app.use("/images", express.static(path.join(__dirname, 'images')));
 
