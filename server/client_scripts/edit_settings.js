@@ -1,17 +1,11 @@
-/*
-called when user requests to update device settings
-
-returns a promise that resolves with the following dictionary indicating whether the request was successful:
-{"success": true}
-
-server should respond with the following dictionary above
-settings should be a dictionary of settings to update
-*/
-
+// called when user requests to update device settings
 function fetch_data(settings) {
   return fetch("/edit_settings", {
     method: "POST",
-    body: JSON.stringify(settings),
+    body: JSON.stringify({
+      settings: settings,
+      device_id: DEVICE_ID
+    }),
     headers: {
       "Content-Type": "application/json; charset=UTF-8"
     }
