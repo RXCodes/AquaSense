@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AquaSense - Pair New Device</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(225deg, #285EFF 0%, #00FFAE 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      padding: 0 1rem;
+      background: linear-gradient(90deg, #1E1E1E 0%, rgba(16, 16, 16, 0.50) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      z-index: 100;
+    }
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .top-bar-brand {
+      color: #285EFF;
+      font-size: clamp(1.125rem, 3vw, 1.5rem);
+      font-weight: 900;
+    }
+    .top-bar-nav {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.75rem, 2vw, 1.5rem);
+      flex-wrap: wrap;
+    }
+    .top-bar-nav a {
+      color: white;
+      font-size: clamp(0.75rem, 2vw, 0.875rem);
+      font-weight: 300;
+      text-decoration: none;
+    }
+    .top-bar-nav a:hover {
+      opacity: 0.8;
+    }
+    .scrollable-content {
+      flex: 1;
+      margin-top: 50px;
+      overflow-y: auto;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+    .page-title {
+      text-align: center;
+      color: white;
+      font-size: clamp(1.75rem, 5vw, 2.625rem);
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+    .section-card {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto 1.25rem;
+      background: rgba(30, 30, 30, 0.90);
+      border-radius: 20px;
+      padding: clamp(1rem, 3vw, 1.5rem);
+    }
+    .section-title {
+      color: #B4B4B4;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .section-desc {
+      color: #8D8D8D;
+      font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .name-input {
+      width: 100%;
+      max-width: 493px;
+      display: block;
+      margin: 0 auto 1rem;
+      padding: 0.625rem 1rem;
+      background: rgba(0, 0, 0, 0.50);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: clamp(0.75rem, 2vw, 0.875rem);
+      font-family: inherit;
+      font-weight: 400;
+    }
+    .name-input::placeholder {
+      color: #8D8D8D;
+    }
+    .name-input:focus {
+      outline: 2px solid #527DFF;
+    }
+    .gradient-btn {
+      display: block;
+      margin: 0 auto;
+      min-width: clamp(140px, 25vw, 181px);
+      height: clamp(34px, 5vw, 38px);
+      background: linear-gradient(222deg, #00FFAE 0%, #285EFF 100%);
+      border-radius: 10px;
+      border: none;
+      color: white;
+      font-size: clamp(0.8125rem, 2vw, 0.9375rem);
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .gradient-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(86, 128, 255, 0.35);
+    }
+    .gradient-btn:active {
+      transform: translateY(0);
+    }
+    .gradient-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .device-id-box {
+      width: 100%;
+      max-width: 355px;
+      margin: 0 auto 1rem;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.50);
+      border-radius: 10px;
+      text-align: center;
+    }
+    .device-id-text {
+      color: #00FFAE;
+      font-size: clamp(1.5rem, 4vw, 1.875rem);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+    }
+    .device-status {
+      color: white;
+      font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
+      font-weight: 400;
+    }
+    .pairing-footer {
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      margin-bottom: 0px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <img id="Icon" width="20" height="32" src="images/icon.png"/>
+      <span class="top-bar-brand">AquaSense</span>
+    </div>
+    <nav class="top-bar-nav">
+      <a href="/devices" data-testid="link-devices">Devices</a>
+      <a href="/dashboard" data-testid="link-dashboard">Dashboard</a>
+      <a href="/settings" data-testid="link-settings">Settings</a>
+      <a href="/logout" data-testid="link-logout">Log Out</a>
+    </nav>
+  </header>
+
+  <div class="scrollable-content">
+    <h1 class="page-title">Pair New Device</h1>
+
+    <div id="name-section" class="section-card">
+      <h2 class="section-title">Enter Display Name</h2>
+      <p class="section-desc">Please enter a display name you would like to assign to your new device. The name must be between 3 to 20 characters long. You can always change this later in device settings.</p>
+      <input
+        type="text"
+        id="device-name"
+        class="name-input"
+        placeholder="Enter Device Name"
+        maxlength="20"
+        data-testid="input-device-name"
+      >
+      <button id="start-pairing-btn" class="gradient-btn" data-testid="button-start-pairing" onclick="start_pairing()">Start Pairing</button>
+    </div>
+
+    <div id="pairing-section" class="section-card hidden">
+      <h2 class="section-title">Configure Device ID</h2>
+      <p class="section-desc">Please configure the provided device ID into your sensor device and restart it to pair the device to the server. This page will automatically update once the device has been successfully registered.</p>
+      <div class="device-id-box">
+        <span id="device-id-display" class="device-id-text" data-testid="text-device-id"></span>
+      </div>
+      <div class="pairing-footer">
+        <span id="device-status" class="device-status" style="flex-grow:3">Waiting for device...</span>
+        <button id="go-dashboard-btn" class="gradient-btn hidden" style="flex-grow:1" data-testid="button-go-dashboard" onclick="go_to_dashboard()">Go to Dashboard</button>
+      </div>
+    </div>
+  </div>
+  <script src="./client_scripts/utility.js"></script>
+  <script src="./client_scripts/pair_device.js"></script>
+</body>
+</html>

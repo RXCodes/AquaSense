@@ -160,6 +160,7 @@
       font-weight: 700;
     }
     .danger-btn {
+      min-width: 225px;
       flex-shrink: 0;
       padding: 0.65rem 1.25rem;
       background: linear-gradient(0deg, #952C2C 9%, #FFA46C 100%);
@@ -233,6 +234,7 @@
       <span class="top-bar-brand">AquaSense</span>
     </div>
     <nav class="top-bar-nav">
+      <a href="/devices" data-testid="link-devices">Devices</a>
       <a href="/dashboard" data-testid="link-dashboard">Dashboard</a>
       <a href="/settings" data-testid="link-settings">Settings</a>
       <a href="/logout" data-testid="link-logout">Log Out</a>
@@ -241,6 +243,11 @@
 
   <div class="scrollable-content">
     <h1 class="page-title">Settings</h1>
+
+    <section class="settings-card" style="flex-direction: row; display: flex; align-items: center; justify-content: space-between;">
+      <h2 class="card-heading">Device Name</h2>
+       <input type="text" class="setting-input" style="width: 300px;" value="IoT Device" data-testid="input-retry-interval" />
+    </section>
 
     <section class="settings-card">
       <h2 class="card-heading">Recording Intervals</h2>
@@ -311,18 +318,23 @@
         <button class="danger-btn" data-testid="button-clear-local-storage">Clear Local Storage</button>
       </div>
       <div class="danger-row">
-        <p class="danger-text">This action will <strong>permanently</strong> wipe all data recorded on the server. This will remove all data points, images and saved AI summaries.</p>
+        <p class="danger-text">This action will <strong>permanently</strong> wipe all data recorded for the device. This will remove all data points, images and other data.</p>
         <button class="danger-btn" data-testid="button-clear-site-analytics">Clear Site Analytics</button>
+      </div>
+      <div class="danger-row">
+        <p class="danger-text">This action will <strong>permanently</strong> wipe all data associated with the device, and removes the device from the system. Future traffic from the device will be ignored.</p>
+        <button class="danger-btn" data-testid="button-remove-device">Remove Device</button>
       </div>
     </section>
   </div>
 
   <footer class="bottom-bar">
     <div class="bottom-bar-left">
-      <button class="bar-btn btn-back" data-testid="button-back">Back</button>
+      <button class="bar-btn btn-back" data-testid="button-back" onclick="history.back()">Back</button>
       <button class="bar-btn btn-save" data-testid="button-save">Save</button>
     </div>
     <button class="bar-btn btn-restore" data-testid="button-restore-defaults">Restore Defaults</button>
   </footer>
+  <script src="./client_scripts/utility.js"></script>
 </body>
 </html>
