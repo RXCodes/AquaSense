@@ -5,7 +5,7 @@ export const Database = {
   delete_path
 };
 
-// target a path in the database
+// instantiate an s3 client used in all requests for s3 services
 function s3_client() {
   const s3 = new S3Client({
     region: process.env.s3_region,
