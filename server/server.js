@@ -4,6 +4,7 @@ import fs from 'fs';
 import cookie_parser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 import { Authorization } from "./authorization.js";
+import { DeviceManager } from "./device_manager.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +13,8 @@ export const app = express();
 const PORT = 5000;
 app.use(express.json());
 app.use(cookie_parser());
+
+DeviceManager.initialize();
 
 // serve the home page
 app.get("/", (_, res) => {
@@ -38,6 +41,26 @@ app.get("/settings/", (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'settings.html'));
 });
 
+// serve the devices page
+app.get("/devices/", (req, res) => {
+  let authorized = Authorization.request_has_user_authorization(req);
+  if (!authorized) {
+    res.redirect("/unauthorized");
+    return;
+  }
+  res.sendFile(path.join(__dirname, 'pages', 'devices.html'));
+});
+
+// serve the pair device page
+app.get("/pair_device/", (req, res) => {
+  let authorized = Authorization.request_has_user_authorization(req);
+  if (!authorized) {
+    res.redirect("/unauthorized");
+    return;
+  }
+  res.sendFile(path.join(__dirname, 'pages', 'pair_device.html'));
+});
+
 // when logging out, clear the cookie and redirect to the home page
 app.get("/logout/", (req, res) => {
   Authorization.log_out_user(req, res);
@@ -53,7 +76,7 @@ app.use("/client_scripts", express.static(path.join(__dirname, 'client_scripts')
 app.use("/images", express.static(path.join(__dirname, 'images')));
 
 // setup the api endpoints
-// loop through all files in the api_endpoints folder and import them
+// loop through all files in the api_endpoints folder and initialize each script
 const apiDir = path.join(__dirname, 'api_endpoints');
 if (fs.existsSync(apiDir)) {
   const api_endpoints = fs.readdirSync(apiDir);
