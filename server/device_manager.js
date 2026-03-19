@@ -6,15 +6,21 @@ var pairing_devices = [];
 export const DeviceManager = {
   get_registered_devices,
   add_device,
+  get_device,
   remove_device,
   get_pairing_devices,
   add_pairing_device,
   remove_pairing_device,
+  clear_device_data,
   initialize
 }
 
 function get_registered_devices() {
   return registered_devices; 
+}
+
+function get_device(device_id) {
+  return registered_devices.find(device => device.device_id == device_id);
 }
 
 function add_device(name, device_id, device_token) {
@@ -34,12 +40,18 @@ function add_device(name, device_id, device_token) {
   }));
 }
 
+function clear_device_data(device_id) {
+  // clear the device's data from the database
+  Database.delete_path("devices/" + device_id + "/data.json");
+  Database.delete_directory("devices/" + device_id + "/images/");
+}
+
 function remove_device(device_id) {
   // remove the device from the list of registered devices
   // on the database, delete the device's directory
   registered_devices = registered_devices.filter(device => device.device_id != device_id);
   Database.upload_text("device_list.json", JSON.stringify(registered_devices));
-  Database.delete_path("devices/" + device_id);
+  Database.delete_directory("devices/" + device_id + "/");
 }
 
 function get_pairing_devices() {

@@ -1,8 +1,9 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 export const Database = {
   upload_text,
   read_text,
-  delete_path
+  delete_path,
+  delete_directory
 };
 
 // instantiate an s3 client used in all requests for s3 services
@@ -62,6 +63,8 @@ function read_text(path, default_value) {
           resolve({"success": true, "text": default_value});
           return;
         }
+        console.log("Cannot read from database: " + path);
+        console.log("Failed to read from database: " + err);
         resolve({"success": false, "error": err});
       } else {
         // read the file - it comes in chunks, so we need to concatenate them
@@ -82,7 +85,30 @@ function delete_path(path) {
     const bucket = process.env.s3_bucket_name;
     const params = new DeleteObjectCommand({
       Bucket: bucket,
-      Key: path
+      Key: path,
+      DeleteMarker: true
+    });
+    s3.send(params, async (err, _) => {
+      if (err) {
+        console.log("Cannot delete from database: " + path);
+        console.log("Failed to delete from database: " + err);
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    })
+  });
+}
+
+// remove a directory from the database
+function delete_directory(path) {
+  return new Promise((resolve) => {
+    const s3 = s3_client();
+    const bucket = process.env.s3_bucket_name;
+    const params = new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: path,
+      DeleteMarker: true
     });
     s3.send(params, async (err, _) => {
       if (err) {

@@ -1,8 +1,8 @@
-import express from 'express';
-import path from 'path';
-import fs from 'fs';
-import cookie_parser from 'cookie-parser';
-import { fileURLToPath } from 'url';
+import express from "express";
+import path from "path";
+import fs from "fs";
+import cookie_parser from "cookie-parser";
+import { fileURLToPath } from "url";
 import { Authorization } from "./authorization.js";
 import { DeviceManager } from "./device_manager.js";
 
@@ -18,7 +18,7 @@ DeviceManager.initialize();
 
 // serve the home page
 app.get("/", (_, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'home.html'));
+  res.sendFile(path.join(__dirname, "pages", "home.html"));
 });
 
 // serve the dashboard page
@@ -28,7 +28,7 @@ app.get("/dashboard/", (req, res) => {
     res.redirect("/unauthorized");
     return;
   }
-  res.sendFile(path.join(__dirname, 'pages', 'dashboard.html'));
+  res.sendFile(path.join(__dirname, "pages", "dashboard.html"));
 });
 
 // serve the settings page
@@ -38,7 +38,7 @@ app.get("/settings/", (req, res) => {
     res.redirect("/unauthorized");
     return;
   }
-  res.sendFile(path.join(__dirname, 'pages', 'settings.html'));
+  res.sendFile(path.join(__dirname, "pages", "settings.html"));
 });
 
 // serve the devices page
@@ -48,7 +48,7 @@ app.get("/devices/", (req, res) => {
     res.redirect("/unauthorized");
     return;
   }
-  res.sendFile(path.join(__dirname, 'pages', 'devices.html'));
+  res.sendFile(path.join(__dirname, "pages", "devices.html"));
 });
 
 // serve the pair device page
@@ -58,7 +58,7 @@ app.get("/pair_device/", (req, res) => {
     res.redirect("/unauthorized");
     return;
   }
-  res.sendFile(path.join(__dirname, 'pages', 'pair_device.html'));
+  res.sendFile(path.join(__dirname, "pages", "pair_device.html"));
 });
 
 // when logging out, clear the cookie and redirect to the home page
@@ -68,16 +68,19 @@ app.get("/logout/", (req, res) => {
 
 // serve the unauthorized page
 app.get("/unauthorized/", (_, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'unauthorized.html'));
+  res.sendFile(path.join(__dirname, "pages", "unauthorized.html"));
 });
 
 // serve images and scripts
-app.use("/client_scripts", express.static(path.join(__dirname, 'client_scripts')));
-app.use("/images", express.static(path.join(__dirname, 'images')));
+app.use(
+  "/client_scripts",
+  express.static(path.join(__dirname, "client_scripts")),
+);
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // setup the api endpoints
 // loop through all files in the api_endpoints folder and initialize each script
-const apiDir = path.join(__dirname, 'api_endpoints');
+const apiDir = path.join(__dirname, "api_endpoints");
 if (fs.existsSync(apiDir)) {
   const api_endpoints = fs.readdirSync(apiDir);
   for (const file of api_endpoints) {
@@ -91,7 +94,7 @@ if (fs.existsSync(apiDir)) {
 // unknown page is served when the user requests a page that doesn't exist
 app.use((req, res) => {
   console.log("Path not found: " + req.path);
-  res.sendFile(path.join(__dirname, 'pages', 'unknown.html'));
+  res.sendFile(path.join(__dirname, "pages", "unknown.html"));
 });
 
 // start the server
