@@ -84,18 +84,80 @@
       background: rgba(30, 30, 30, 0.90);
       border-top-left-radius: 10px;
       border-top-right-radius: 10px;
+      position: relative;
     }
     .records-footer {
       width: 100%;
-      min-height: 87px;
+      min-height: 50px;
       background: rgba(30, 30, 30, 0.70);
       border-bottom-right-radius: 10px;
       border-bottom-left-radius: 10px;
       display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+    }
+    .records-footer-row {
+      display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
-      padding: 0 1rem;
+      width: 100%;
+    }
+    .date-range-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .date-range-label {
+      color: #B4B4B4;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .error-label {
+      color: #B4B4B4;
+      font-size: 1rem;
+      font-weight: 550;
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .date-input {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 400;
+      padding: 4px 8px;
+      outline: none;
+      cursor: pointer;
+      color-scheme: dark;
+    }
+    .date-input:focus {
+      border-color: rgba(40, 94, 255, 0.6);
+    }
+    .apply-range-btn {
+      background: linear-gradient(90deg, #285EFF 0%, #00FFAE 100%);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .apply-range-btn:hover {
+      opacity: 0.85;
     }
     .status-indicator {
       display: flex;
@@ -209,19 +271,32 @@
     <h1 class="page-title">Dashboard</h1>
 
     <section class="section-block">
-      <div data-layer="Records" class="records-area"></div>
-      <div data-layer="Records Footer" class="records-footer">
-        <div class="status-indicator">
-          <div data-svg-wrapper data-layer="Rectangle 5" class="Rectangle5" style="display: flex; align-items: center;">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="15" height="15" rx="7.5" fill="#07FF56"/>
-            </svg>
-          </div>
-          <span class="status-text">Last updated 5 mins ago</span>
+      <div data-layer="Records" class="records-area">
+        <div id="no-data-message" class="error-label" style="display: none;">
+          <p>No data was found in the specified date range.</p>
         </div>
-        <div data-layer="Ask AI Records Button" class="ask-ai-btn">
-          <div class="ask-ai-btn-bg"></div>
-          <div class="ask-ai-btn-text">Ask AI</div>
+        <canvas id="records-chart"></canvas>
+      </div>
+      <div data-layer="Records Footer" class="records-footer">
+        <div class="records-footer-row">
+          <div class="status-indicator">
+            <div data-svg-wrapper style="display: flex; align-items: center;">
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect id="data-status-indicator" width="15" height="15" rx="7.5" fill="#07FF56"/>
+              </svg>
+            </div>
+            <span class="status-text" id="data-last-updated">Fetching...</span>
+          </div>
+
+          <div class="date-range-row">
+            <span class="date-range-label">From</span>
+            <input type="date" id="date-start" class="date-input" data-testid="input-date-start" />
+            <input type="time" id="time-start" class="date-input" data-testid="input-time-start" />
+            <span class="date-range-label">To</span>
+            <input type="date" id="date-end" class="date-input" data-testid="input-date-end" />
+            <input type="time" id="time-end" class="date-input" data-testid="input-time-end" />
+            <button class="apply-range-btn" id="apply-range-btn" data-testid="button-apply-range" onclick="apply_date_range()">Apply</button>
+          </div>
         </div>
       </div>
     </section>
@@ -237,12 +312,12 @@
       <div data-layer="Snapshots Footer" class="snapshots-footer">
         <div class="snapshots-footer-row">
           <div class="status-indicator">
-            <div data-svg-wrapper data-layer="Rectangle 6" class="Rectangle6" style="display: flex; align-items: center;">
+            <div data-svg-wrapper style="display: flex; align-items: center;">
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="15" height="15" rx="7.5" fill="#07FF56"/>
               </svg>
             </div>
-            <span class="status-text">Last updated 5 mins ago</span>
+            <span class="status-text">...</span>
           </div>
           <div data-layer="Ask AI Snapshot Button" class="ask-ai-btn">
             <div class="ask-ai-btn-bg"></div>
@@ -254,5 +329,10 @@
     </section>
   </div>
   <script src="./client_scripts/utility.js"></script>
+  <script src="./client_scripts/data_helper.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script src="./client_scripts/dashboard.js"></script>
+  
 </body>
 </html>
