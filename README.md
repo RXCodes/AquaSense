@@ -14,7 +14,4 @@ The server connects to an **S3 bucket** to store and read files. The `.env` file
 
 ## 🤖 Device
 The `device` directory contains all the files and source code used to run the device.
-
-Right now, all device-related files are located here: https://github.com/nathan-707/SmartAquarium/tree/main
-
-In the future, all source code should be centralized in one place.
+All device-related files are located here: https://github.com/nathan-707/SmartAquarium/tree/main
