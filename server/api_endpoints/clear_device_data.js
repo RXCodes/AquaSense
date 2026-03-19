@@ -1,7 +1,7 @@
 import { DeviceManager } from "../device_manager.js";
 
 export function initialize(app) {
-  app.post("/remove_device", (req, res) => {
+  app.post("/clear_device_data", (req, res) => {
     // get parameters from the request
     let device_id = req.body.device_id;
     let username = req.body.username;
@@ -32,7 +32,7 @@ export function initialize(app) {
     }
 
     // remove the device
-    DeviceManager.remove_device(device_id);
+    DeviceManager.clear_device_data(device_id);
     res.send({ success: true });
   });
 }

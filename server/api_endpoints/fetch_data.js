@@ -1,24 +1,18 @@
-import { Authorization } from "../authorization.js"
+import { Authorization } from "../authorization.js";
+import { Database } from "../database.js";
+import { DeviceManager } from "../device_manager.js";
 
 export function initialize(app) {
   app.post("/fetch_data", async (req, res) => {
     if (!Authorization.request_has_user_authorization(req)) {
-      res.send({"success": false, "error": "unauthorized"});
+      res.send({ success: false, error: "unauthorized" });
       return;
     }
 
     // get the device id from the request
     let device_id = req.body.device_id;
     if (!device_id) {
-      res.send({"success": false, "error": "missing device id"});
-      return;
-    }
-
-    // get start_date and end_date from the request
-    let start_date = req.body.start_date;
-    let end_date = req.body.end_date;
-    if (!start_date || !end_date) {
-      res.send({"success": false, "error": "missing start date or end date"});
+      res.send({ success: false, error: "missing device_id" });
       return;
     }
 
@@ -26,15 +20,22 @@ export function initialize(app) {
     let path = "devices/" + device_id + "/data.json";
     var data = await Database.read_text(path, "{}");
     if (!data.success) {
-      res.send({"success": false, "error": "failed to fetch data"});
+      res.send({ success: false, error: "failed to fetch data" });
       return;
     }
 
-    // TODO: filter the data by date
+    // return the data if any
     data = JSON.parse(data.text);
-    var filtered_data = [];
+    if (!data.last_updated) {
+      res.send({ success: false, error: "no recorded data found" });
+      return;
+    }
+
+    // get device creation time'
+    // remove data points that were recorded before the device was created
+    let creation_date = DeviceManager.get_device(device_id).creation_date;
+    data.points = data.points.filter(point => point.time >= creation_date);
     
-    
-    res.send({"success": true, "last_updated": data.last_updated, "data": filtered_data});
+    res.send({ success: true, last_updated: data.last_updated, data: data });
   });
 }
