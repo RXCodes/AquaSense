@@ -45,6 +45,29 @@ function upload_text(path, text) {
   });
 }
 
+// upload binary data (e.g. images) to the database
+function upload_binary(path, buffer, content_type) {
+  return new Promise((resolve) => {
+    const s3 = s3_client();
+    const bucket = process.env.s3_bucket_name;
+    const params = new PutObjectCommand({
+      Bucket: bucket,
+      Key: path,
+      Body: buffer,
+      ContentType: content_type,
+    });
+    s3.send(params, (err, _) => {
+      if (err) {
+        console.log("Cannot upload binary to database: " + path);
+        console.log("Failed to upload binary to database: " + err);
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+}
+
 // read text from the database
 function read_text(path, default_value) {
   return new Promise(async (resolve) => {
