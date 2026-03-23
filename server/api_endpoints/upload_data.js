@@ -4,106 +4,88 @@ import { PathLock } from "../path_lock.js";
 import { DeviceManager } from "../device_manager.js";
 
 export function initialize(app) {
-  app.post("/upload_data", async (req, res) => {
+  app.post("/upload_image", async (req, res) => {
+    // check sensor authorization
     if (!Authorization.request_has_sensor_device_authorization(req)) {
       res.send({ success: false, error: "unauthorized" });
       return;
     }
 
-    // check if data is provided
-    var new_data = req.body.data;
-    if (!new_data) {
-      res.send({ success: false, error: "missing data" });
+    // check if image data is provided
+    let image_data = req.body.image;
+    if (!image_data) {
+      res.send({ success: false, error: "missing image" });
+      return;
+    }
+
+    // check if time is provided
+    let time = req.body.time;
+    if (!time) {
+      res.send({ success: false, error: "missing time" });
       return;
     }
 
     // get the device id from the request
     let device_id = Authorization.get_device_id_from_request(req);
 
-    // get device creation time
-    let device = DeviceManager.get_device(device_id);
-    let creation_time = device.creation_date;
+    // use the provided timestamp as the image filename to keep images ordered
+    let image_path = "devices/" + device_id + "/images/" + time + ".jpg";
+    let index_path = "devices/" + device_id + "/images/index.json";
 
-    // lock the path to prevent concurrent writes
-    await PathLock.lock_paths(["devices/" + device_id + "/data.json"]);
+    // lock the index path to prevent concurrent writes
+    await PathLock.lock_paths([index_path]);
     function send_response(response) {
-      PathLock.unlock_paths(["devices/" + device_id + "/data.json"]);
+      PathLock.unlock_paths([index_path]);
       res.send(response);
     }
 
-    // get database path
-    let path = "devices/" + device_id + "/data.json";
-    var current_data = await Database.read_text(path, "{}");
-    if (!current_data.success) {
-      send_response({ success: false, error: "failed to read current data" });
-      return;
-    }
-
-    // update the data
     try {
-      current_data = JSON.parse(current_data.text);
-      current_data.last_updated = Date.now() / 1000;
-      if (!current_data.points) {
-        current_data.points = [];
-      }
-      for (var i = 0; i < new_data.length; i++) {
-        var new_point = new_data[i];
+      // decode the base64 image data
+      let image_buffer = Buffer.from(image_data, "base64");
 
-        // check if the data point is valid
-        if (new_point.type == undefined) {
-          send_response({
-            success: false,
-            error: "missing type from data point: " + JSON.stringify(new_point),
-          });
-          return;
-        }
-        if (new_point.value == undefined) {
-          send_response({
-            success: false,
-            error:
-              "missing value from data point: " + JSON.stringify(new_point),
-          });
-          return;
-        }
-        if (new_point.time == undefined) {
-          send_response({
-            success: false,
-            error: "missing time from data point: " + JSON.stringify(new_point),
-          });
-          return;
-        }
-
-        // check if the data point is within the device's creation time
-        if (new_point.time < creation_time) {
-          send_response({
-            success: false,
-            error: "data point time is before device creation time",
-          });
-          return;
-        }
-
-        // add the data point to the database
-        let data = {
-          type: new_point.type,
-          value: new_point.value,
-          time: new_point.time,
-          meta: new_point.meta || {},
-          upload_time: Date.now() / 1000,
-        };
-        current_data.points.push(data);
-      }
-      let success = await Database.upload_text(
-        path,
-        JSON.stringify(current_data),
+      // upload the image to the database
+      let upload_success = await Database.upload_binary(
+        image_path,
+        image_buffer,
+        "image/jpeg"
       );
-      if (!success) {
-        send_response({ success: false, error: "failed to update data" });
+      if (!upload_success) {
+        send_response({ success: false, error: "failed to upload image" });
         return;
       }
+
+      // update the image index so the app can list all images for a device
+      let index_result = await Database.read_text(index_path, "{}");
+      if (!index_result.success) {
+        send_response({ success: false, error: "failed to read image index" });
+        return;
+      }
+      let index = JSON.parse(index_result.text);
+      if (!index.images) {
+        index.images = [];
+      }
+      index.images.push({
+        path: image_path,
+        time: time,
+        upload_time: Date.now() / 1000,
+      });
+      index.last_updated = Date.now() / 1000;
+
+      let index_success = await Database.upload_text(
+        index_path,
+        JSON.stringify(index)
+      );
+      if (!index_success) {
+        send_response({
+          success: false,
+          error: "failed to update image index",
+        });
+        return;
+      }
+
       send_response({ success: true });
     } catch (e) {
-      send_response({ success: false, error: "interal error: " + e });
-      return;
+      send_response({ success: false, error: "internal error: " + e });
     }
   });
 }
