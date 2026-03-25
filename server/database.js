@@ -1,10 +1,10 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 export const Database = {
   upload_text,
+  upload_binary,
   read_text,
   delete_path,
-  delete_directory,
-  upload_binary
+  delete_directory
 };
 
 // instantiate an s3 client used in all requests for s3 services
@@ -38,29 +38,6 @@ function upload_text(path, text) {
       if (err) {
         console.log("Cannot upload to database: " + path);
         console.log("Failed to upload text to database: " + err);
-        resolve(false);
-      } else {
-        resolve(true);
-      }
-    });
-  });
-}
-
-// upload binary data (e.g. images) to the database
-function upload_binary(path, buffer, content_type) {
-  return new Promise((resolve) => {
-    const s3 = s3_client();
-    const bucket = process.env.s3_bucket_name;
-    const params = new PutObjectCommand({
-      Bucket: bucket,
-      Key: path,
-      Body: buffer,
-      ContentType: content_type,
-    });
-    s3.send(params, (err, _) => {
-      if (err) {
-        console.log("Cannot upload binary to database: " + path);
-        console.log("Failed to upload binary to database: " + err);
         resolve(false);
       } else {
         resolve(true);
@@ -121,6 +98,29 @@ function delete_path(path) {
         resolve(true);
       }
     })
+  });
+}
+
+// upload binary data (e.g. images) to the database
+function upload_binary(path, buffer, content_type) {
+  return new Promise((resolve) => {
+    const s3 = s3_client();
+    const bucket = process.env.s3_bucket_name;
+    const params = new PutObjectCommand({
+      Bucket: bucket,
+      Key: path,
+      Body: buffer,
+      ContentType: content_type,
+    });
+    s3.send(params, (err, _) => {
+      if (err) {
+        console.log("Cannot upload binary to database: " + path);
+        console.log("Failed to upload binary to database: " + err);
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    });
   });
 }
 
