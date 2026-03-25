@@ -55,7 +55,7 @@ export function initialize(app) {
     try {
       let settings = JSON.parse(device_settings.text);
       settings.remove_local_storage_request_time = Date.now() / 1000;
-      let upload_success = Database.upload_text(
+      let upload_success = await Database.upload_text(
         settings_path,
         JSON.stringify(settings),
       );
