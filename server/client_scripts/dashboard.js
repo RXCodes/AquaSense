@@ -31,6 +31,7 @@ var date_start_input = document.getElementById("date-start");
 var time_start_input = document.getElementById("time-start");
 var date_end_input = document.getElementById("date-end");
 var time_end_input = document.getElementById("time-end");
+var refresh_btn = document.getElementById("refresh-btn");
 var data_chart = null;
 var SELECTED_START_TIME = 0;
 var SELECTED_END_TIME = Date.now() / 1000;
@@ -44,11 +45,11 @@ function format_date_for_input(date) {
   return `${y}-${m}-${d}`;
 }
 
-// initialize date pickers: end = today 23:59, start = 30 days ago 00:00
+// initialize date pickers: end = today 23:59, start = 14 days ago 00:00
 function init_date_pickers() {
   let now = new Date();
   let thirty_days_ago = new Date(now);
-  thirty_days_ago.setDate(now.getDate() - 30);
+  thirty_days_ago.setDate(now.getDate() - 14);
 
   date_start_input.value = format_date_for_input(thirty_days_ago);
   time_start_input.value = "00:00";
@@ -195,11 +196,20 @@ function render_chart(datapoints) {
   data_chart = new Chart(data_canvas, config);
 }
 
+function refresh_button_clicked() {
+  refresh_btn.style.opacity = 0.5;
+  refresh_btn.innerHTML = "Refreshing...";
+  refresh_data();
+}
+
 async function refresh_data() {
   // fetch data from the server
+  refresh_btn.disabled = true;
   let response = await fetch_data();
   response = await response.json();
   if (!response.success) {
+    refresh_btn.disabled = false;
+    refresh_btn.innerHTML = "Refresh";
     show_alert(response.error || "Failed to fetch data", "error");
     return;
   }
@@ -216,7 +226,82 @@ async function refresh_data() {
     data_status_indicator.style.fill = "#00bb78ff";
   }
 
+  // render the chart and enable the refresh button
+  refresh_btn.style.opacity = 1.0;
+  refresh_btn.disabled = false;
+  refresh_btn.innerHTML = "Refresh";
   render_chart(cached_datapoints);
+}
+
+function download(filename, textInput) {
+  var element = document.createElement('a');
+  element.setAttribute('href','data:text/plain;charset=utf-8, ' + encodeURIComponent(textInput));
+  element.setAttribute('download', filename);
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+function export_data() {
+  // get file type and time representation
+  let file_type = document.getElementById("export-type").value;
+  let time_representation = document.getElementById("export-time-representation").value;
+
+  // check if there is any data to export
+  if (cached_datapoints.length == 0) {
+    show_alert("No data to export.", "error");
+    return;
+  }
+
+  // deep copy cached datapoints so it doesn't get mutated in this method
+  let cached_datapoints_copy = JSON.parse(JSON.stringify(cached_datapoints));
+  
+  // filter out data points based on selected time
+  let filtered_data = get_data(cached_datapoints_copy, SELECTED_START_TIME, SELECTED_END_TIME);
+
+  // check if there is any data to export based on the selected time range
+  if (filtered_data.length == 0) {
+    show_alert("No data points to export.", "error");
+    return;
+  }
+  
+  // sort the data by time
+  filtered_data.sort((a, b) => a.time - b.time);
+
+  // if time representation is relative, convert the time to relative to the first point's time
+  if (time_representation == "relative") {
+    let first_time = filtered_data[0].time;
+    for (let i = 0; i < filtered_data.length; i++) {
+      filtered_data[i].time = filtered_data[i].time - first_time;
+    }
+  }
+
+  // refer to the chart to see which datasets are hidden
+  const visible = [];
+  data_chart.data.datasets.forEach((dataset, index) => {
+    if (data_chart.isDatasetVisible(index)) {
+      visible.push(dataset.label);
+    }
+  });
+
+  // filter out data points that are not in the visible datasets
+  filtered_data = filtered_data.filter(point => visible.includes(point.type));
+  
+  // export the data as a CSV file
+  if (file_type == "csv") {
+    let csv = "time,value,type\n";
+    for (let i = 0; i < filtered_data.length; i++) {
+      let point = filtered_data[i];
+      csv += point.time + "," + point.value + "," + point.type + "\n";
+    }
+    download("data.csv", csv);
+  }
+
+  // export the data as a JSON file
+  if (file_type == "json") {
+    let json = JSON.stringify(filtered_data);
+    download("data.json", json);
+  }
 }
 
 async function start() {
