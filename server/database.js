@@ -3,7 +3,8 @@ export const Database = {
   upload_text,
   read_text,
   delete_path,
-  delete_directory
+  delete_directory,
+  upload_binary
 };
 
 // instantiate an s3 client used in all requests for s3 services
