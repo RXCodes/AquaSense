@@ -9,23 +9,28 @@ export function initialize(app) {
       res.send({ success: false, error: "unauthorized" });
       return;
     }
+
     // check if data is provided
     var new_data = req.body.data;
     if (!new_data) {
       res.send({ success: false, error: "missing data" });
       return;
     }
+
     // get the device id from the request
     let device_id = Authorization.get_device_id_from_request(req);
+
     // get device creation time
     let device = DeviceManager.get_device(device_id);
     let creation_time = device.creation_date;
+
     // lock the path to prevent concurrent writes
     await PathLock.lock_paths(["devices/" + device_id + "/data.json"]);
     function send_response(response) {
       PathLock.unlock_paths(["devices/" + device_id + "/data.json"]);
       res.send(response);
     }
+
     // get database path
     let path = "devices/" + device_id + "/data.json";
     var current_data = await Database.read_text(path, "{}");
@@ -33,6 +38,7 @@ export function initialize(app) {
       send_response({ success: false, error: "failed to read current data" });
       return;
     }
+
     // update the data
     try {
       current_data = JSON.parse(current_data.text);
@@ -42,6 +48,7 @@ export function initialize(app) {
       }
       for (var i = 0; i < new_data.length; i++) {
         var new_point = new_data[i];
+
         // check if the data point is valid
         if (new_point.type == undefined) {
           send_response({
@@ -53,7 +60,8 @@ export function initialize(app) {
         if (new_point.value == undefined) {
           send_response({
             success: false,
-            error: "missing value from data point: " + JSON.stringify(new_point),
+            error:
+              "missing value from data point: " + JSON.stringify(new_point),
           });
           return;
         }
@@ -64,6 +72,7 @@ export function initialize(app) {
           });
           return;
         }
+
         // check if the data point is within the device's creation time
         if (new_point.time < creation_time) {
           send_response({
@@ -72,6 +81,7 @@ export function initialize(app) {
           });
           return;
         }
+
         // add the data point to the database
         let data = {
           type: new_point.type,
