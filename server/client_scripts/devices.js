@@ -39,11 +39,9 @@ function show_devices(devices) {
     info.className = "device-info";
     var name = document.createElement("div");
     name.className = "device-name";
-    name.setAttribute("data-testid", "text-device-name-" + (device.id || i));
     name.textContent = device.name || "Unknown Device";
     var desc = document.createElement("div");
     desc.className = "device-description";
-    desc.setAttribute("data-testid", "text-device-desc-" + (device.id || i));
     var descText = "ID: " + (device.id || "N/A");
     if (device.creation_date) {
       let date = new Date(device.creation_date * 1000);

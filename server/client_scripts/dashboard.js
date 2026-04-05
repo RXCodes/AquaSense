@@ -24,6 +24,19 @@ function fetch_status() {
   });
 }
 
+// API call when user requests device settings
+function fetch_settings(device_id) {
+  return fetch("/get_settings", {
+    method: "POST",
+    body: JSON.stringify({
+      device_id: device_id,
+    }),
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+    },
+  });
+}
+
 var data_canvas = document.getElementById("records-chart");
 var data_last_updated = document.getElementById("data-last-updated");
 var data_status_indicator = document.getElementById("data-status-indicator");
@@ -36,6 +49,7 @@ var data_chart = null;
 var SELECTED_START_TIME = 0;
 var SELECTED_END_TIME = Date.now() / 1000;
 var cached_datapoints = [];
+var last_updated_time;
 
 // format a Date object as YYYY-MM-DD for date inputs
 function format_date_for_input(date) {
@@ -96,16 +110,36 @@ function apply_date_range() {
 }
 
 function get_time_ago_string(last_updated) {
-  let time_ago = (Date.now() / 1000) - last_updated;
+  let time_ago = Date.now() / 1000 - last_updated;
   let time_ago_string = "";
   if (time_ago < 60) {
-    time_ago_string = Math.floor(time_ago) + " seconds ago";
+    let seconds = Math.floor(time_ago);
+    if (seconds == 1) {
+      time_ago_string = "1 second ago";
+    } else {
+      time_ago_string = seconds + " seconds ago";
+    }
   } else if (time_ago < 3600) {
-    time_ago_string = Math.floor(time_ago / 60) + " minutes ago";
+    let minutes = Math.floor(time_ago / 60);
+    if (minutes == 1) {
+      time_ago_string = "1 minute ago";
+    } else {
+      time_ago_string = minutes + " minutes ago";
+    }
   } else if (time_ago < 86400) {
-    time_ago_string = Math.floor(time_ago / 3600) + " hours ago";
+    let hours = Math.floor(time_ago / 3600);
+    if (hours == 1) {
+      time_ago_string = "1 hour ago";
+    } else {
+      time_ago_string = hours + " hours ago";
+    }
   } else {
-    time_ago_string = Math.floor(time_ago / 86400) + " days ago";
+    let days = Math.floor(time_ago / 86400);
+    if (days == 1) {
+      time_ago_string = "1 day ago";
+    } else {
+      time_ago_string = days + " days ago";
+    }
   }
   return time_ago_string;
 }
@@ -143,7 +177,7 @@ function render_chart(datapoints) {
     let dataset = {
       label: key,
       fill: false,
-      data: prepared_data[key]
+      data: prepared_data[key],
     };
     datasets.push(dataset);
   }
@@ -187,13 +221,30 @@ function render_chart(datapoints) {
       },
       elements: {
         point: {
-          hitRadius: 10
-        }
-      }
+          hitRadius: 10,
+        },
+      },
     },
   };
 
   data_chart = new Chart(data_canvas, config);
+}
+
+function add_data_to_chart(datapoints) {
+  // add the new datapoints to the chart
+  for (let i = 0; i < datapoints.length; i++) {
+    let datapoint = datapoints[i];
+    let dataset = data_chart.data.datasets.find(
+      (dataset) => dataset.label === datapoint.type,
+    );
+    if (dataset) {
+      dataset.data.push({
+        x: new Date(datapoint.time * 1000),
+        y: datapoint.value,
+      });
+    }
+  }
+  data_chart.update();
 }
 
 function refresh_button_clicked() {
@@ -216,8 +267,9 @@ async function refresh_data() {
   cached_datapoints = response.data.points;
 
   // update the last updated time
-  data_last_updated.innerHTML = "Last updated " + get_time_ago_string(response.last_updated);
-  let delta_time = (Date.now() / 1000) - response.last_updated;
+  data_last_updated.innerHTML =
+    "Last updated " + get_time_ago_string(response.last_updated);
+  let delta_time = Date.now() / 1000 - response.last_updated;
 
   // if the device was inactive for more than an hour, set the indicator to red
   if (delta_time > 60 * 60) {
@@ -226,17 +278,58 @@ async function refresh_data() {
     data_status_indicator.style.fill = "#00bb78ff";
   }
 
+  // update the datapoint count
+  document.getElementById("datapoint-count").innerHTML = response.data.points.length + " Total Datapoints";
+
+  // calculate uptime in last 24 hours using 30 minute intervals
+  let times = {};
+  for (let i = 0; i < response.data.points.length; i++) {
+    let datapoint = response.data.points[i];
+    if (datapoint.time > Date.now() / 1000 - (24 * 60 * 60)) {
+      let time = Math.floor(datapoint.time / (30 * 60));
+      times[time] = true;
+    }
+  }
+  let uptime = Math.min((Object.keys(times).length / (24 * 2)) * 100, 100);
+  let uptime_element = document.getElementById("data-24hr-uptime");
+  uptime_element.innerHTML = uptime.toFixed(2) + "% Uptime in Last 24hr";
+
+  // change color of the uptime indicator based on the uptime
+  var color = "#00bb78";
+  if (uptime < 50) {
+    color = "#ff5050";
+  } else if (uptime < 80) {
+    color = "#ffaa00";
+  }
+  uptime_element.style.outline = "1.5px solid " + color;
+  uptime_element.style.background = color + "30";
+  uptime_element.style.color = color + "ff";
+  
   // render the chart and enable the refresh button
   refresh_btn.style.opacity = 1.0;
   refresh_btn.disabled = false;
   refresh_btn.innerHTML = "Refresh";
-  render_chart(cached_datapoints);
+
+  if (data_chart) {
+    // if chart already exists, add the new data to it
+    // only include points that are newer than the last updated time
+    let new_datapoints = cached_datapoints.filter(
+      (datapoint) => datapoint.time > last_updated_time,
+    );
+    add_data_to_chart(new_datapoints);
+  } else {
+    render_chart(cached_datapoints);
+  }
+  last_updated_time = response.last_updated;
 }
 
 function download(filename, textInput) {
-  var element = document.createElement('a');
-  element.setAttribute('href','data:text/plain;charset=utf-8, ' + encodeURIComponent(textInput));
-  element.setAttribute('download', filename);
+  var element = document.createElement("a");
+  element.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8, " + encodeURIComponent(textInput),
+  );
+  element.setAttribute("download", filename);
   document.body.appendChild(element);
   element.click();
   document.body.removeChild(element);
@@ -245,7 +338,9 @@ function download(filename, textInput) {
 function export_data() {
   // get file type and time representation
   let file_type = document.getElementById("export-type").value;
-  let time_representation = document.getElementById("export-time-representation").value;
+  let time_representation = document.getElementById(
+    "export-time-representation",
+  ).value;
 
   // check if there is any data to export
   if (cached_datapoints.length == 0) {
@@ -255,16 +350,20 @@ function export_data() {
 
   // deep copy cached datapoints so it doesn't get mutated in this method
   let cached_datapoints_copy = JSON.parse(JSON.stringify(cached_datapoints));
-  
+
   // filter out data points based on selected time
-  let filtered_data = get_data(cached_datapoints_copy, SELECTED_START_TIME, SELECTED_END_TIME);
+  let filtered_data = get_data(
+    cached_datapoints_copy,
+    SELECTED_START_TIME,
+    SELECTED_END_TIME,
+  );
 
   // check if there is any data to export based on the selected time range
   if (filtered_data.length == 0) {
     show_alert("No data points to export.", "error");
     return;
   }
-  
+
   // sort the data by time
   filtered_data.sort((a, b) => a.time - b.time);
 
@@ -285,8 +384,8 @@ function export_data() {
   });
 
   // filter out data points that are not in the visible datasets
-  filtered_data = filtered_data.filter(point => visible.includes(point.type));
-  
+  filtered_data = filtered_data.filter((point) => visible.includes(point.type));
+
   // export the data as a CSV file
   if (file_type == "csv") {
     let csv = "time,value,type\n";
@@ -317,6 +416,28 @@ async function start() {
     return;
   }
 
+  // fetch settings for the device
+  var device_settings = await fetch_settings(DEVICE_ID);
+  device_settings = await device_settings.json();
+  if (!device_settings.success) {
+    show_alert(
+      device_settings.error || "Failed to fetch device settings",
+      "error",
+    );
+    close_function = function () {
+      window.location.href = "/devices";
+    };
+    return;
+  }
+  device_settings = device_settings.settings;
+
+  // set device name
+  document.getElementById("device-display-name").innerHTML =
+    device_settings.name +
+    " <span class='label' id='device-id' style='opacity:0.7'>(" +
+    DEVICE_ID +
+    ")</span>";
+
   // check device status
   var device_status = await fetch_status();
   device_status = await device_status.json();
@@ -324,10 +445,8 @@ async function start() {
     close_function = function () {
       window.location.href = "/devices";
     };
-    show_alert(
-      "Failed to fetch device status: " + device_status.error,
-      "error",
-    );
+    show_alert("Failed to fetch device status: " + device_status.error, "error");
+    return;
   }
   if (device_status.success && !device_status.registered) {
     close_function = function () {
@@ -339,5 +458,9 @@ async function start() {
 
   // fetch data for the dashboard
   refresh_data();
+
+  // set refresh interval based on settings
+  let refresh_interval_minutes = device_settings.refresh_interval || 5;
+  setInterval(refresh_data, refresh_interval_minutes * 60 * 1000);
 }
 start();

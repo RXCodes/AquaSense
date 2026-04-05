@@ -14,12 +14,25 @@ function delete_device(device_id, username, password) {
 }
 
 // API call when user requests to update device settings
-function fetch_data(settings) {
+function update_settings(device_id, settings) {
   return fetch("/edit_settings", {
     method: "POST",
     body: JSON.stringify({
       settings: settings,
-      device_id: DEVICE_ID
+      device_id: device_id
+    }),
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8"
+    }
+  });
+}
+
+// API call when user requests device settings
+function fetch_settings(device_id) {
+  return fetch("/get_settings", {
+    method: "POST",
+    body: JSON.stringify({
+      device_id: device_id
     }),
     headers: {
       "Content-Type": "application/json; charset=UTF-8"
@@ -175,3 +188,72 @@ overlay.addEventListener('click', function(e) {
 });
 
 confirm_button.addEventListener('click', confirm);
+
+let save_btn = document.getElementById("save-btn");
+
+// fetch settings for the device
+async function fetch_device_settings() {
+  var response = await fetch_settings(DEVICE_ID);
+  response = await response.json();
+  if (!response.success) {
+    show_alert(response.error || "Failed to fetch device settings", "error");
+    close_function = function() {
+      window.location.href = "/devices";
+    }
+    return;
+  }
+
+  // update the UI with the device settings
+  let refresh_interval = document.getElementById("refresh-interval");
+  refresh_interval.value = response.settings.refresh_interval || 5;
+  let device_name = document.getElementById("device-name");
+  device_name.value = response.settings.name || "IoT Device";
+
+  // show the save button after settings are loaded
+  save_btn.style.display = "block";
+}
+
+fetch_device_settings();
+
+// called when save button is clicked
+async function save_settings() {
+  let refresh_interval = document.getElementById("refresh-interval").value;
+  let device_name = document.getElementById("device-name").value;
+
+  // client checks
+  if (!device_name || device_name.length < 3 || device_name.length > 20) {
+    show_alert("Device name must be between 3 and 20 characters", "error");
+    return;
+  }
+  if (!refresh_interval || refresh_interval < 0.5 || refresh_interval > 10) {
+    show_alert("Refresh interval must be between 0.5 and 10 minutes", "error");
+    return;
+  }
+
+  // disable the save button
+  save_btn.disabled = true;
+  save_btn.innerHTML = "Saving...";
+  save_btn.style.opacity = 0.75;
+
+  // reset button on completion
+  function reset_button() {
+    save_btn.disabled = false;
+    save_btn.innerHTML = "Save";
+    save_btn.style.opacity = 1.0;
+  }
+
+  // update the device settings
+  let settings = {
+    refresh_interval: parseInt(refresh_interval),
+    name: device_name
+  };
+  let response = await update_settings(DEVICE_ID, settings);
+  response = await response.json();
+  if (!response.success) {
+    show_alert(response.error || "Failed to update device settings", "error");
+    reset_button();
+    return;
+  }
+  show_alert("Settings updated successfully", "success");
+  reset_button();
+}
