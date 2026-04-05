@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 export const Database = {
   upload_text,
   upload_binary,
@@ -125,23 +125,28 @@ function upload_binary(path, buffer, content_type) {
 }
 
 // remove a directory from the database
-function delete_directory(path) {
-  return new Promise((resolve) => {
-    const s3 = s3_client();
-    const bucket = process.env.s3_bucket_name;
-    const params = new DeleteObjectCommand({
+function delete_directory(prefix) {
+  return new Promise(async (resolve) => {
+  const s3 = s3_client();
+  const bucket = process.env.s3_bucket_name;
+  try {
+    const list = await s3.send(new ListObjectsV2Command({
       Bucket: bucket,
-      Key: path,
-      DeleteMarker: true
-    });
-    s3.send(params, async (err, _) => {
-      if (err) {
-        console.log("Cannot delete from database: " + path);
-        console.log("Failed to delete from database: " + err);
-        resolve(false);
-      } else {
-        resolve(true);
-      }
-    })
+      Prefix: prefix
+    }));
+    if (!list.Contents || list.Contents.length === 0) {
+      resolve(true);
+      return;
+    }
+    const objects = list.Contents.map(obj => ({ Key: obj.Key }));
+    await s3.send(new DeleteObjectsCommand({
+      Bucket: bucket,
+      Delete: { Objects: objects }
+    }));
+    resolve(true)
+  } catch (err) {
+    console.log("Failed to delete directory:", err);
+    resolve(false);
+  }
   });
 }

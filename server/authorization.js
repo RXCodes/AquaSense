@@ -11,8 +11,8 @@ export const Authorization = {
 // keep track of session tokens
 var active_tokens = [];
 
-// tokens expire after 30 minutes
-const expiration_time = 30 * 60 * 1000;
+// tokens expire after an hour
+const expiration_time = 60 * 60 * 1000;
 
 // generate a random token
 function generate_token() {

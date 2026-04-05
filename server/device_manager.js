@@ -12,6 +12,7 @@ export const DeviceManager = {
   add_pairing_device,
   remove_pairing_device,
   clear_device_data,
+  save_registered_devices,
   initialize
 }
 
@@ -44,6 +45,10 @@ function clear_device_data(device_id) {
   // clear the device's data from the database
   Database.delete_path("devices/" + device_id + "/data.json");
   Database.delete_directory("devices/" + device_id + "/images/");
+}
+
+function save_registered_devices() {
+  Database.upload_text("device_list.json", JSON.stringify(registered_devices));
 }
 
 function remove_device(device_id) {
