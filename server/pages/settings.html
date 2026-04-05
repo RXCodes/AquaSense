@@ -118,6 +118,7 @@
       align-items: center;
       gap: 0.5rem;
       flex-shrink: 0;
+      margin-left: 24px;
     }
     .setting-input {
       width: 100px;
@@ -331,78 +332,25 @@
     <h1 class="page-title">Settings</h1>
 
     <section class="settings-card" style="flex-direction: row; display: flex; align-items: center; justify-content: space-between;">
-      <h2 class="card-heading">Device Name</h2>
-       <input type="text" class="setting-input" style="width: 300px;" value="IoT Device" data-testid="input-retry-interval" />
+      <h2 class="card-heading">Display Name</h2>
+       <input type="text" class="setting-input" style="width: 300px;" value="Loading" id="device-name" />
     </section>
 
     <section class="settings-card">
-      <h2 class="card-heading">Recording Intervals</h2>
-      <p class="card-description">Adjust how frequently data points are recorded. Higher frequency will lead to higher data usage.</p>
+      <h2 class="card-heading">Preferences</h2>
+      <p class="card-description">Adjust preferences for this device for the web application. To adjust settings of the sensor device, you must use the iOS application.</p>
 
       <div class="setting-row">
-        <span class="setting-label"><strong>Camera</strong>: Take snapshots of the water</span>
+        <span class="setting-label"><strong>Refresh Interval</strong>: How frequently data will be requested. The graph will update automatically when fetching data.</span>
         <div class="setting-input-group">
-          <input type="number" class="setting-input" value="10" data-testid="input-camera-interval" />
+          <input type="number" class="setting-input" value="-" id="refresh-interval" />
           <span class="setting-unit">minutes</span>
-        </div>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label"><strong>Turbidity Sensor</strong>: Detect contaminants in water</span>
-        <div class="setting-input-group">
-          <input type="number" class="setting-input" value="5" data-testid="input-turbidity-interval" />
-          <span class="setting-unit">minutes</span>
-        </div>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label"><strong>pH Sensor</strong>: Measure acidity of water</span>
-        <div class="setting-input-group">
-          <input type="number" class="setting-input" value="5" data-testid="input-ph-interval" />
-          <span class="setting-unit">minutes</span>
-        </div>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label"><strong>TDS Sensor</strong>: Measure concentration of solids</span>
-        <div class="setting-input-group">
-          <input type="number" class="setting-input" value="5" data-testid="input-tds-interval" />
-          <span class="setting-unit">minutes</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="settings-card">
-      <h2 class="card-heading">Contingency Planning</h2>
-      <p class="card-description">In case of failure to transmit data to the server, the device keeps a local copy of the records. You can adjust how often the device will attempt to retry connecting to the server to send new data.</p>
-
-      <div class="setting-row">
-        <span class="setting-label"><strong>Retry Interval</strong>: Time to wait until retrying to sync</span>
-        <div class="setting-input-group">
-          <input type="number" class="setting-input" value="5" data-testid="input-retry-interval" />
-          <span class="setting-unit">minutes</span>
-        </div>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label"><strong>Local Storage Limit</strong>: Maximum capacity of data to store offline on the device - when exceeding the limit, the oldest data will be deleted to make space for new data</span>
-        <div class="setting-input-group">
-          <input type="number" class="setting-input" value="100" data-testid="input-storage-limit" />
-          <span class="setting-unit">MB</span>
-        </div>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label"><strong>Offline Image Limit</strong>: Maximum amount of images to store offline on the device - when exceeding the limit, the oldest image is deleted before a new one is saved</span>
-        <div class="setting-input-group">
-          <input type="number" class="setting-input" value="20" data-testid="input-image-limit" />
-          <span class="setting-unit">images</span>
         </div>
       </div>
     </section>
 
     <section class="settings-card">
       <h2 class="card-heading">Manage Data</h2>
-
-      <div class="danger-row">
-        <p class="danger-text">The device keeps a local storage for data that has failed to be delivered to the server. This action will <strong>permanently</strong> clear the local storage of the device.</p>
-        <button class="danger-btn" id="button-clear-local-storage">Clear Local Storage</button>
-      </div>
       <div class="danger-row">
         <p class="danger-text">This action will <strong>permanently</strong> wipe all data recorded for the device. This will remove all data points, images and other data.</p>
         <button class="danger-btn" id="button-clear-site-analytics">Clear Site Analytics</button>
@@ -416,10 +364,9 @@
 
   <footer class="bottom-bar">
     <div class="bottom-bar-left">
-      <button class="bar-btn btn-back" data-testid="button-back" onclick="history.back()">Back</button>
-      <button class="bar-btn btn-save" data-testid="button-save">Save</button>
+      <button class="bar-btn btn-back" onclick="history.back()">Back</button>
     </div>
-    <button class="bar-btn btn-restore" data-testid="button-restore-defaults">Restore Defaults</button>
+    <button class="bar-btn btn-save" style="display:none" onclick="save_settings()" id="save-btn">Save</button>
   </footer>
 
   <div class="modal-overlay" id="confirmModal" data-testid="modal-confirm-action">

@@ -1,338 +1,475 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AquaSense - Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(225deg, #285EFF 0%, #00FFAE 100%);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .top-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50px;
-      padding: 0 1rem;
-      background: linear-gradient(90deg, #1E1E1E 0%, rgba(16, 16, 16, 0.50) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      z-index: 100;
-    }
-    .top-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-shrink: 0;
-    }
-    .top-bar-left svg {
-      flex-shrink: 0;
-    }
-    .top-bar-brand {
-      color: #285EFF;
-      font-size: clamp(1.125rem, 3vw, 1.5rem);
-      font-weight: 900;
-    }
-    .top-bar-nav {
-      display: flex;
-      align-items: center;
-      gap: clamp(0.75rem, 2vw, 1.5rem);
-      flex-wrap: wrap;
-    }
-    .top-bar-nav a {
-      color: white;
-      font-size: clamp(0.75rem, 2vw, 0.875rem);
-      font-weight: 300;
-      text-decoration: none;
-    }
-    .top-bar-nav a:hover {
-      opacity: 0.8;
-    }
-    .scrollable-content {
-      flex: 1;
-      margin-top: 50px;
-      overflow-y: auto;
-      padding: clamp(1rem, 3vw, 2rem);
-    }
-    .page-title {
-      text-align: center;
-      color: white;
-      font-size: clamp(1.75rem, 5vw, 2.625rem);
-      font-weight: 700;
-      margin-bottom: 1.25rem;
-    }
-    .section-block {
-      width: 100%;
-      margin-bottom: 1.25rem;
-    }
-    .records-area {
-      width: 100%;
-      min-height: 279px;
-      background: rgba(30, 30, 30, 0.90);
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-      position: relative;
-    }
-    .records-footer {
-      width: 100%;
-      min-height: 50px;
-      background: rgba(30, 30, 30, 0.70);
-      border-bottom-right-radius: 10px;
-      border-bottom-left-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1rem;
-    }
-    .records-footer-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      width: 100%;
-    }
-    .date-range-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .date-range-label {
-      color: #B4B4B4;
-      font-size: 0.75rem;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .error-label {
-      color: #B4B4B4;
-      font-size: 1rem;
-      font-weight: 550;
-      white-space: nowrap;
-      font-family: 'Inter', sans-serif;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .date-input {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 6px;
-      color: white;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 400;
-      padding: 4px 8px;
-      outline: none;
-      cursor: pointer;
-      color-scheme: dark;
-    }
-    .date-input:focus {
-      border-color: rgba(40, 94, 255, 0.6);
-    }
-    .apply-range-btn {
-      background: linear-gradient(90deg, #285EFF 0%, #00FFAE 100%);
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 5px 12px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .apply-range-btn:hover {
-      opacity: 0.85;
-    }
-    .status-indicator {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .status-text {
-      color: #B4B4B4;
-      font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
-      font-weight: 500;
-    }
-    .ask-ai-btn {
-      position: relative;
-      width: 78px;
-      height: 56px;
-      flex-shrink: 0;
-    }
-    .ask-ai-btn-bg {
-      width: 78px;
-      height: 41px;
-      position: absolute;
-      left: 0;
-      top: 7px;
-      background: linear-gradient(359deg, #5680FF 0%, #00FFAE 100%);
-      border-radius: 10px;
-    }
-    .ask-ai-btn-text {
-      width: 78px;
-      height: 56px;
-      position: absolute;
-      left: 0;
-      top: 0;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: clamp(0.875rem, 2vw, 1.125rem);
-      font-weight: 700;
-    }
-    .snapshots-top {
-      display: flex;
-      width: 100%;
-    }
-    .snapshots-sidebar {
-      width: clamp(100px, 20vw, 146px);
-      min-width: 100px;
-      min-height: 279px;
-      background: rgba(30, 30, 30, 0.80);
-      border-top-left-radius: 10px;
-      display: flex;
-      flex-direction: column;
-    }
-    .snapshots-title {
-      padding: 10px 12px;
-      color: #B4B4B4;
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
-      font-weight: 600;
-    }
-    .snapshots-sidebar-list {
-      flex: 1;
-      width: 100%;
-      background: rgba(30, 30, 30, 0.30);
-    }
-    .snapshots-container {
-      flex: 1;
-      min-height: 279px;
-      background: rgba(30, 30, 30, 0.90);
-      border-top-right-radius: 10px;
-    }
-    .snapshots-footer {
-      width: 100%;
-      min-height: 56px;
-      background: rgba(30, 30, 30, 0.70);
-      border-bottom-right-radius: 10px;
-      border-bottom-left-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      padding: 8px 1rem;
-      gap: 4px;
-    }
-    .snapshots-footer-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      width: 100%;
-    }
-    .snapshot-date {
-      color: white;
-      font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
-      font-weight: 600;
-    }
-  </style>
-</head>
-<body>
-  <header class="top-bar">
-    <div class="top-bar-left">
-      <img id="Icon" width="20" height="32" src="images/icon.png"/>
-      <span class="top-bar-brand">AquaSense</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AquaSense - Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: linear-gradient(225deg, #285eff 0%, #00ffae 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .top-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        padding: 0 1rem;
+        background: linear-gradient(
+          90deg,
+          #1e1e1e 0%,
+          rgba(16, 16, 16, 0.5) 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        z-index: 100;
+      }
+      .top-bar-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-shrink: 0;
+      }
+      .top-bar-left svg {
+        flex-shrink: 0;
+      }
+      .top-bar-brand {
+        color: #285eff;
+        font-size: clamp(1.125rem, 3vw, 1.5rem);
+        font-weight: 900;
+      }
+      .top-bar-nav {
+        display: flex;
+        align-items: center;
+        gap: clamp(0.75rem, 2vw, 1.5rem);
+        flex-wrap: wrap;
+      }
+      .top-bar-nav a {
+        color: white;
+        font-size: clamp(0.75rem, 2vw, 0.875rem);
+        font-weight: 300;
+        text-decoration: none;
+      }
+      .top-bar-nav a:hover {
+        opacity: 0.8;
+      }
+      .scrollable-content {
+        flex: 1;
+        margin-top: 50px;
+        overflow-y: auto;
+        padding: clamp(1rem, 3vw, 2rem);
+      }
+      .page-title {
+        text-align: center;
+        color: white;
+        font-size: clamp(1.75rem, 5vw, 2.625rem);
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+      }
+      .section-block {
+        width: 100%;
+        margin-bottom: 1.25rem;
+      }
+      .top-area {
+        width: 100%;
+        min-height: 90px;
+        background: rgba(30, 30, 30, 0.9);
+        border-radius: 10px;
+        position: relative;
+      }
+      .records-area {
+        width: 100%;
+        min-height: 279px;
+        background: rgba(30, 30, 30, 0.9);
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        position: relative;
+      }
+      .records-footer {
+        width: 100%;
+        min-height: 50px;
+        background: rgba(30, 30, 30, 0.7);
+        border-bottom-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+      }
+      #refresh-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 90;
+        margin: 0.5rem;
+        opacity: 0;
+      }
+      .records-footer-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        width: 100%;
+      }
+      .inner-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .label {
+        color: #b4b4b4;
+        font-size: 0.75rem;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      .error-label {
+        color: #b4b4b4;
+        font-size: 1rem;
+        font-weight: 550;
+        white-space: nowrap;
+        font-family: "Inter", sans-serif;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .input {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        color: white;
+        font-family: "Inter", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 400;
+        padding: 4px 8px;
+        outline: none;
+        cursor: pointer;
+        color-scheme: dark;
+      }
+      .options {
+        background: rgba(0, 0, 0, 0.5);
+        font-family: "Inter", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 400;
+        color-scheme: dark;
+      }
+      .date-input:focus {
+        border-color: rgba(40, 94, 255, 0.6);
+      }
+      .button {
+        background: linear-gradient(45deg, #285eff 0%, #00dbe3 100%);
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-family: "Inter", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 5px 12px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .info-card {
+        background: #b4b4b430;
+        outline: #b0b0b0ff 1.5px solid;
+        border-radius: 6px;
+        color: #b4b4b4ff;
+        font-family: "Inter", sans-serif;
+        outline-offset: -1.5px;
+        font-size: 0.75rem;
+        font-weight: 400;
+        padding: 5px 12px;
+        white-space: nowrap;
+      }
+      .button:hover {
+        opacity: 0.85;
+      }
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .status-text {
+        color: #b4b4b4;
+        font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
+        font-weight: 500;
+      }
+      .snapshots-top {
+        display: flex;
+        width: 100%;
+      }
+      .snapshots-sidebar {
+        width: clamp(100px, 20vw, 146px);
+        min-width: 100px;
+        min-height: 279px;
+        background: rgba(30, 30, 30, 0.8);
+        border-top-left-radius: 10px;
+        display: flex;
+        flex-direction: column;
+      }
+      .left-title {
+        padding: 10px 12px;
+        color: #b4b4b4;
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
+        font-weight: 600;
+      }
+      .snapshots-sidebar-list {
+        flex: 1;
+        width: 100%;
+        background: rgba(30, 30, 30, 0.3);
+      }
+      .snapshots-container {
+        flex: 1;
+        min-height: 279px;
+        background: rgba(30, 30, 30, 0.9);
+        border-top-right-radius: 10px;
+      }
+      .snapshots-footer {
+        width: 100%;
+        min-height: 56px;
+        background: rgba(30, 30, 30, 0.7);
+        border-bottom-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        padding: 8px 1rem;
+        gap: 4px;
+      }
+      .snapshots-footer-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        width: 100%;
+      }
+      .snapshot-date {
+        color: white;
+        font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <img id="Icon" width="20" height="32" src="images/icon.png" />
+        <span class="top-bar-brand">AquaSense</span>
+      </div>
+      <nav class="top-bar-nav">
+        <a href="/devices" data-testid="link-devices">Devices</a>
+        <a href="/dashboard" data-testid="link-dashboard">Dashboard</a>
+        <a href="/settings" data-testid="link-settings">Settings</a>
+        <a href="/logout" data-testid="link-logout">Log Out</a>
+      </nav>
+    </header>
+
+    <div class="scrollable-content">
+      <section class="section-block">
+        <div data-layer="Records" class="top-area">
+          <div
+            data-layer="Records Footer"
+            class="records-footer"
+            style="background: transparent"
+          >
+            <div
+              class="records-footer-row"
+              style="justify-content: flex-start; align-items: flex-start"
+            >
+              <img src="images/device.svg" width="80" height="80" />
+              <div
+                class="inner-row"
+                style="
+                  flex-direction: column;
+                  align-items: flex-start;
+                  gap: 0.25rem;
+                "
+              >
+                <div class="inner-row">
+                  <div id="device-display-name" class="left-title">Loading</div>
+                </div>
+
+                <div class="inner-row">
+                  <a
+                    href="/settings"
+                    class="button"
+                    style="margin-left: 1rem; text-decoration: none"
+                    >Manage Device</a
+                  >
+                  <span class="info-card" id="datapoint-count">- Total Datapoints</span>
+                  <span class="info-card" id="image-count">- Total Images</span>
+                  <span class="info-card" id="data-24hr-uptime">-% Uptime in Last 24hr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <div data-layer="Records" class="records-area">
+          <button
+            class="button"
+            id="refresh-btn"
+            onclick="refresh_button_clicked()"
+          >
+            Refresh
+          </button>
+          <div id="no-data-message" class="error-label" style="display: none">
+            <p>No data was found in the specified date range.</p>
+          </div>
+          <canvas id="records-chart"></canvas>
+        </div>
+        <div data-layer="Records Footer" class="records-footer">
+          <div class="records-footer-row">
+            <div class="status-indicator">
+              <div data-svg-wrapper style="display: flex; align-items: center">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 15 15"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    id="data-status-indicator"
+                    width="15"
+                    height="15"
+                    rx="7.5"
+                    fill="#07FF56"
+                  />
+                </svg>
+              </div>
+              <span class="status-text" id="data-last-updated"
+                >Fetching...</span
+              >
+            </div>
+
+            <div class="inner-row">
+              <span class="label">From</span>
+              <input type="date" id="date-start" class="input" />
+              <input type="time" id="time-start" class="input" />
+              <span class="label">To</span>
+              <input
+                type="date"
+                id="date-end"
+                class="input"
+                data-testid="input-date-end"
+              />
+              <input
+                type="time"
+                id="time-end"
+                class="input"
+                data-testid="input-time-end"
+              />
+              <button
+                class="button"
+                id="apply-range-btn"
+                onclick="apply_date_range()"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+          <div class="records-footer-row">
+            <span class="status-text"><b>Export Data</b></span>
+            <div class="inner-row">
+              <span class="label">Export As</span>
+              <select id="export-type" name="Export Format" class="input">
+                <option class="options" value="csv">CSV</option>
+                <option class="options" value="json">JSON</option>
+              </select>
+              <span class="label">With Time Representation</span>
+              <select
+                id="export-time-representation"
+                name="Time Representation"
+                class="input"
+              >
+                <option class="options" value="absolute">Absolute</option>
+                <option class="options" value="relative">Relative</option>
+              </select>
+              <button class="button" id="export-btn" onclick="export_data()">
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <div class="snapshots-top">
+          <div data-layer="Snapshots Sidebar" class="snapshots-sidebar">
+            <div data-layer="Snapshots" class="left-title">Snapshots</div>
+            <div
+              data-layer="Snapshots Sidebar List"
+              class="snapshots-sidebar-list"
+            ></div>
+          </div>
+          <div
+            data-layer="Snapshots Container"
+            class="snapshots-container"
+          ></div>
+        </div>
+        <div data-layer="Snapshots Footer" class="snapshots-footer">
+          <div class="snapshots-footer-row">
+            <div id="image-status-indicator" class="status-indicator">
+              <div data-svg-wrapper style="display: flex; align-items: center">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 15 15"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    id="data-status-indicator"
+                    width="15"
+                    height="15"
+                    rx="7.5"
+                    fill="#07FF56"
+                  />
+                </svg>
+              </div>
+              <span class="status-text" id="data-last-updated"
+                >Fetching...</span
+              >
+            </div>
+            <span class="label">Snapshot Date</span>
+          </div>
+          <div class="snapshots-footer-row">
+            <span class="status-text"><b>Export Image</b></span>
+            <div class="inner-row">
+              <button class="button" id="export-btn" onclick="export_image()">
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-    <nav class="top-bar-nav">
-      <a href="/devices" data-testid="link-devices">Devices</a>
-      <a href="/dashboard" data-testid="link-dashboard">Dashboard</a>
-      <a href="/settings" data-testid="link-settings">Settings</a>
-      <a href="/logout" data-testid="link-logout">Log Out</a>
-    </nav>
-  </header>
-
-  <div class="scrollable-content">
-    <h1 class="page-title">Dashboard</h1>
-
-    <section class="section-block">
-      <div data-layer="Records" class="records-area">
-        <div id="no-data-message" class="error-label" style="display: none;">
-          <p>No data was found in the specified date range.</p>
-        </div>
-        <canvas id="records-chart"></canvas>
-      </div>
-      <div data-layer="Records Footer" class="records-footer">
-        <div class="records-footer-row">
-          <div class="status-indicator">
-            <div data-svg-wrapper style="display: flex; align-items: center;">
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect id="data-status-indicator" width="15" height="15" rx="7.5" fill="#07FF56"/>
-              </svg>
-            </div>
-            <span class="status-text" id="data-last-updated">Fetching...</span>
-          </div>
-
-          <div class="date-range-row">
-            <span class="date-range-label">From</span>
-            <input type="date" id="date-start" class="date-input" data-testid="input-date-start" />
-            <input type="time" id="time-start" class="date-input" data-testid="input-time-start" />
-            <span class="date-range-label">To</span>
-            <input type="date" id="date-end" class="date-input" data-testid="input-date-end" />
-            <input type="time" id="time-end" class="date-input" data-testid="input-time-end" />
-            <button class="apply-range-btn" id="apply-range-btn" data-testid="button-apply-range" onclick="apply_date_range()">Apply</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-block">
-      <div class="snapshots-top">
-        <div data-layer="Snapshots Sidebar" class="snapshots-sidebar">
-          <div data-layer="Snapshots" class="snapshots-title">Snapshots</div>
-          <div data-layer="Snapshots Sidebar List" class="snapshots-sidebar-list"></div>
-        </div>
-        <div data-layer="Snapshots Container" class="snapshots-container"></div>
-      </div>
-      <div data-layer="Snapshots Footer" class="snapshots-footer">
-        <div class="snapshots-footer-row">
-          <div class="status-indicator">
-            <div data-svg-wrapper style="display: flex; align-items: center;">
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="15" height="15" rx="7.5" fill="#07FF56"/>
-              </svg>
-            </div>
-            <span class="status-text">...</span>
-          </div>
-          <div data-layer="Ask AI Snapshot Button" class="ask-ai-btn">
-            <div class="ask-ai-btn-bg"></div>
-            <div class="ask-ai-btn-text">Ask AI</div>
-          </div>
-        </div>
-        <span class="snapshot-date">Snapshot Date</span>
-      </div>
-    </section>
-  </div>
-  <script src="./client_scripts/utility.js"></script>
-  <script src="./client_scripts/data_helper.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-  <script src="./client_scripts/dashboard.js"></script>
-  
-</body>
+    <script src="./client_scripts/utility.js"></script>
+    <script src="./client_scripts/data_helper.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="./client_scripts/dashboard.js"></script>
+  </body>
 </html>
