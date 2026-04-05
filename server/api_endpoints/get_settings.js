@@ -1,5 +1,6 @@
 import { Authorization } from "../authorization.js";
 import { Database } from "../database.js";
+import { DeviceManager } from "../device_manager.js";
 
 export function initialize(app) {
   app.post("/get_settings", async (req, res) => {

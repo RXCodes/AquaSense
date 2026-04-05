@@ -31,7 +31,7 @@ export function initialize(app) {
       return;
     }
 
-    // get device creation time'
+    // get device creation time
     // remove data points that were recorded before the device was created
     let creation_date = DeviceManager.get_device(device_id).creation_date;
     data.points = data.points.filter(point => point.time >= creation_date);

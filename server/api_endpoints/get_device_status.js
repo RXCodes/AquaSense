@@ -1,5 +1,4 @@
 import { Authorization } from "../authorization.js";
-import { Database } from "../database.js";
 import { DeviceManager } from "../device_manager.js";
 
 export function initialize(app) {
@@ -26,19 +25,11 @@ export function initialize(app) {
       return;
     }
 
-    // read the device status from the database
-    let path = "devices/" + device_id + "/device_status.json";
-    let device_status = await Database.read_text(path, null);
-    if (!device_status.success || !device_status.text) {
-      res.send({ success: true, registered: true });
-      return;
-    }
-
     // return the device status
     res.send({
       success: true,
       registered: true,
-      info: JSON.parse(device_status.text),
+      info: {}
     });
   });
 }
