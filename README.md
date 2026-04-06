@@ -7,10 +7,10 @@ We propose to develop a **device** that assesses the environment of a fish tank 
 
 ## ⚙️ Server
 The `server` directory contains all the files and source code used to run a Node.js web server.
-There is a `.env` file containing the credentials for accessing the website - you are free to change the credentials to what you wish.
-The website is password-protected for security purposes.
 
 The server connects to an **S3 bucket** to store and read files. The `.env` file contains configurations to setup connection to the S3 bucket - you may use any provider you wish.
+
+The `accounts.js` file allows you to create accounts that users can login. Each account can have different permissions.
 
 ## 🤖 Device
 The `device` directory contains all the files and source code used to run the device.
