@@ -10,6 +10,11 @@ export function initialize(app) {
       return;
     }
 
+    if (!Authorization.user_can_edit_settings(req)) {
+      res.send({ success: false, error: "no permissions" });
+      return;
+    }
+
     // get the device id from the request
     let device_id = req.body.device_id;
     if (!device_id) {

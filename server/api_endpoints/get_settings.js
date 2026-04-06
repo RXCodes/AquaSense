@@ -36,6 +36,12 @@ export function initialize(app) {
     // return the device settings
     var settings = JSON.parse(device_settings.text);
     settings.name = device.name;
+
+    // if user cannot edit settings, add a flag to the response
+    if (!Authorization.user_can_edit_settings(req)) {
+      settings.read_only = true;
+    }
+    
     res.send({ success: true, settings: settings });
   });
 }

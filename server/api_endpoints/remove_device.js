@@ -1,4 +1,5 @@
 import { DeviceManager } from "../device_manager.js";
+import { Accounts } from "../accounts.js";
 
 export function initialize(app) {
   app.post("/remove_device", (req, res) => {
@@ -26,8 +27,15 @@ export function initialize(app) {
     }
 
     // check if the credentials are correct
-    if (username != process.env.username || password != process.env.password) {
+    let account = Accounts.get_account(username, password);
+    if (!account) {
       res.send({ success: false, error: "invalid credentials" });
+      return;
+    }
+    
+    // check if the user has permission to clear data
+    if (!account.permissions.includes("write")) {
+      res.send({ success: false, error: "no permissions" });
       return;
     }
 
