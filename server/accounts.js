@@ -10,12 +10,12 @@ export const Accounts = {
 const registered_credentials = [
   {
     username: "admin",
-    password: "waterSense123",
+    password: "example",
     permissions: ["read", "write"]
   },
   {
-    username: "CSE555",
-    password: "AquaSense",
+    username: "guest",
+    password: "example",
     permissions: ["read"]
   }
 ];
