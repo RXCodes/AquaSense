@@ -1,15 +1,18 @@
 import { DeviceManager } from "./device_manager.js"
+import { Accounts } from "./accounts.js"
 
 export const Authorization = {
   authorize_request,
   request_has_user_authorization,
   request_has_sensor_device_authorization,
+  user_can_edit_settings,
   get_device_id_from_request,
   log_out_user
 };
 
 // keep track of session tokens
 var active_tokens = [];
+var active_accounts = {}; // map of token to account
 
 // tokens expire after an hour
 const expiration_time = 60 * 60 * 1000;
@@ -26,16 +29,15 @@ function generate_token() {
 
 // authorize a request with username and password - generate a new token on success
 export function authorize_request(req, res) {
-  if (
-    process.env.username == req.body.username &&
-    process.env.password == req.body.password
-  ) {
+  let account = Accounts.get_account(req.body.username, req.body.password);
+  if (account) {
     // generate a new token and add it to the list of active tokens
     let token = generate_token();
     while (active_tokens.includes(token)) {
       token = generate_token();
     }
     active_tokens.push(token);
+    active_accounts[token] = account;
 
     // send a success response with the token
     res.cookie("authorization", token, { maxAge: expiration_time, sameSite: "none", secure: true });
@@ -45,6 +47,7 @@ export function authorize_request(req, res) {
     setTimeout(function () {
       if (active_tokens.includes(token)) {
         active_tokens.splice(active_tokens.indexOf(token), 1);
+        delete active_accounts[token];
       }
     }, expiration_time);
     return;
@@ -52,6 +55,18 @@ export function authorize_request(req, res) {
 
   // if the username or password is incorrect, send a failure response
   res.send({ success: false, error: "invalid credentials" });
+}
+
+// check if user can edit settings
+export function user_can_edit_settings(req) {
+  let token = req.cookies.authorization || "unknown";
+  if (active_tokens.includes(token)) {
+    let account = active_accounts[token];
+    if (account.permissions.includes("write")) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // check if the request has a valid authorization token - check cookies
@@ -89,6 +104,7 @@ export function log_out_user(req, res) {
   let token = req.cookies.authorization || "unknown";
   if (active_tokens.includes(token)) {
     active_tokens.splice(active_tokens.indexOf(token), 1);
+    delete active_accounts[token];
   }
   res.clearCookie("authorization");
   res.redirect("/");

@@ -5,6 +5,7 @@ import cookie_parser from "cookie-parser";
 import { fileURLToPath } from "url";
 import { Authorization } from "./authorization.js";
 import { DeviceManager } from "./device_manager.js";
+import { Accounts } from "./accounts.js"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(cookie_parser());
 
 DeviceManager.initialize();
+Accounts.validate_credentials();
 
 // serve the home page
 app.get("/", (_, res) => {
