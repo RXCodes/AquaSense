@@ -98,6 +98,10 @@ var modal_actions = {
 };
 
 function open_modal(actionId) {
+  if (read_only) {
+    show_alert("You do not have permission to edit settings", "error");
+    return;
+  }
   var config = modal_actions[actionId];
   if (!config) return;
   pending_action = actionId;
@@ -117,6 +121,10 @@ function close_modal() {
 }
 
 async function confirm() {
+  if (read_only) {
+    show_alert("You do not have permission to edit settings", "error");
+    return;
+  }
   if (submitting) {
     return;
   }
@@ -192,6 +200,7 @@ confirm_button.addEventListener('click', confirm);
 let save_btn = document.getElementById("save-btn");
 
 // fetch settings for the device
+var read_only = false;
 async function fetch_device_settings() {
   var response = await fetch_settings(DEVICE_ID);
   response = await response.json();
@@ -209,8 +218,12 @@ async function fetch_device_settings() {
   let device_name = document.getElementById("device-name");
   device_name.value = response.settings.name || "IoT Device";
 
-  // show the save button after settings are loaded
-  save_btn.style.display = "block";
+  // show the save button after settings are loaded only if you can edit it
+  if (!response.settings.read_only) {
+    save_btn.style.display = "block";
+  } else {
+    read_only = true;
+  }
 }
 
 fetch_device_settings();
@@ -221,6 +234,10 @@ async function save_settings() {
   let device_name = document.getElementById("device-name").value;
 
   // client checks
+  if (read_only) {
+    show_alert("You do not have permission to edit settings", "error");
+    return;
+  }
   if (!device_name || device_name.length < 3 || device_name.length > 20) {
     show_alert("Device name must be between 3 and 20 characters", "error");
     return;
