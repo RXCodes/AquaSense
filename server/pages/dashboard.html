@@ -316,7 +316,6 @@
                     >Manage Device</a
                   >
                   <span class="info-card" id="datapoint-count">- Total Datapoints</span>
-                  <span class="info-card" id="image-count">- Total Images</span>
                   <span class="info-card" id="data-24hr-uptime">-% Uptime in Last 24hr</span>
                 </div>
               </div>
@@ -415,56 +414,6 @@
         </div>
       </section>
 
-      <section class="section-block">
-        <div class="snapshots-top">
-          <div data-layer="Snapshots Sidebar" class="snapshots-sidebar">
-            <div data-layer="Snapshots" class="left-title">Snapshots</div>
-            <div
-              data-layer="Snapshots Sidebar List"
-              class="snapshots-sidebar-list"
-            ></div>
-          </div>
-          <div
-            data-layer="Snapshots Container"
-            class="snapshots-container"
-          ></div>
-        </div>
-        <div data-layer="Snapshots Footer" class="snapshots-footer">
-          <div class="snapshots-footer-row">
-            <div id="image-status-indicator" class="status-indicator">
-              <div data-svg-wrapper style="display: flex; align-items: center">
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 15 15"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect
-                    id="data-status-indicator"
-                    width="15"
-                    height="15"
-                    rx="7.5"
-                    fill="#07FF56"
-                  />
-                </svg>
-              </div>
-              <span class="status-text" id="data-last-updated"
-                >Fetching...</span
-              >
-            </div>
-            <span class="label">Snapshot Date</span>
-          </div>
-          <div class="snapshots-footer-row">
-            <span class="status-text"><b>Export Image</b></span>
-            <div class="inner-row">
-              <button class="button" id="export-btn" onclick="export_image()">
-                Export
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
     <script src="./client_scripts/utility.js"></script>
     <script src="./client_scripts/data_helper.js"></script>
