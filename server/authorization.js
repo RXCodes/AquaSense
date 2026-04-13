@@ -6,6 +6,7 @@ export const Authorization = {
   request_has_user_authorization,
   request_has_sensor_device_authorization,
   user_can_edit_settings,
+  user_can_add_devices,
   get_device_id_from_request,
   log_out_user
 };
@@ -63,6 +64,18 @@ export function user_can_edit_settings(req) {
   if (active_tokens.includes(token)) {
     let account = active_accounts[token];
     if (account.permissions.includes("write")) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// check if user can add devices
+export function user_can_add_devices(req) {
+  let token = req.cookies.authorization || "unknown";
+  if (active_tokens.includes(token)) {
+    let account = active_accounts[token];
+    if (account.permissions.includes("create")) {
       return true;
     }
   }
