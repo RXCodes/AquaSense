@@ -53,7 +53,10 @@ async function start_pairing() {
   response = await response.json();
   if (!response.success) {
     nameInput.style.outline = "";
-    show_alert("Server Error: " + response.error, "error");
+    close_function = function() {
+      window.location.href = "/devices";
+    };
+    show_alert("You do not have permissions to create a device.", "error");
     pair_button.innerHTML = "Pair Device";
     pair_button.style.opacity = 1.0;
     pairing_started = false;
