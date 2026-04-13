@@ -12,6 +12,12 @@ export function initialize(app) {
       return;
     }
 
+    // check if the user has permission to create devices
+    if (!Authorization.user_can_add_devices(req)) {
+      res.send({ success: false, error: "unauthorized" });
+      return;
+    }
+
     // get the device name from the request
     let device_name = req.body.name;
     if (!device_name) {
