@@ -7,11 +7,12 @@ export const Accounts = {
 // each account has a username, password, and permissions
 // "read" permission allows the user to view data - must be included
 // "write" permission allows the user to edit settings - optional
+// "create" permission allows the user to add devices - optional
 const registered_credentials = [
   {
     username: "admin",
     password: "example",
-    permissions: ["read", "write"]
+    permissions: ["read", "write", "create"]
   },
   {
     username: "guest",
@@ -22,7 +23,7 @@ const registered_credentials = [
 
 // validate the credentials in the registered_credentials array
 function validate_credentials() {
-  let accepted_permissions = ["read", "write"];
+  let accepted_permissions = ["read", "write", "create"];
   for (let account of registered_credentials) {
     if (!account.username) {
       throw new Error("Username missing from account: " + JSON.stringify(account));
