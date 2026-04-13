@@ -12,6 +12,8 @@ The server connects to an **S3 bucket** to store and read files. The `.env` file
 
 The `accounts.js` file allows you to create accounts that users can login. Each account can have different permissions.
 
+You can learn about all the APIs here: https://spotty-muse-bf4.notion.site/AquaSense-API-Endpoint-Documentation-305e3e1e3ac7806cac18f9fcf8352952
+
 ## 🤖 Device
 The `device` directory contains all the files and source code used to run the device.
 All device-related files are located here: https://github.com/nathan-707/SmartAquarium/tree/main
